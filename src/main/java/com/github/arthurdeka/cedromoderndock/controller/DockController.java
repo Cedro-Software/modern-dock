@@ -244,7 +244,13 @@ public class DockController {
             // Only show popup when there is at least one window.
             if (!windows.isEmpty()) {
                 DockTheme dockTheme = appServices.appearanceService().getDockTheme();
-                windowPreviewPopup.updateContent(windows, icon, dockTheme, appServices.windowPreviewService()::activate);
+                windowPreviewPopup.updateContent(
+                        windows,
+                        icon,
+                        item.getLabel(),
+                        dockTheme,
+                        appServices.windowPreviewService()::activate
+                );
                 windowPreviewPopup.showAbove(button, hBoxContainer);
                 popupOwnerButton = button;
 

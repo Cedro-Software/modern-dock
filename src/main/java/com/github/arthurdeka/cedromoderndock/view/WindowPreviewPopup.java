@@ -45,6 +45,7 @@ public class WindowPreviewPopup extends Popup {
     public void updateContent(
             List<NativeWindowUtils.WindowInfo> windows,
             Image appIcon,
+            String appLabel,
             DockTheme dockTheme,
             Consumer<NativeWindowUtils.WindowInfo> activateWindowAction
     ) {
@@ -63,7 +64,7 @@ public class WindowPreviewPopup extends Popup {
         Color textColor = getTextColorForBackground(dockTheme.colorRgb());
 
         for (NativeWindowUtils.WindowInfo window : windows) {
-            HBox item = createWindowItem(window, appIcon, textColor, activateWindowAction);
+            HBox item = createWindowItem(window, appIcon, appLabel, textColor, activateWindowAction);
             container.getChildren().add(item);
         }
     }
@@ -90,6 +91,7 @@ public class WindowPreviewPopup extends Popup {
     private HBox createWindowItem(
             NativeWindowUtils.WindowInfo window,
             Image appIcon,
+            String appLabel,
             Color textColor,
             Consumer<NativeWindowUtils.WindowInfo> activateWindowAction
     ) {
@@ -106,7 +108,7 @@ public class WindowPreviewPopup extends Popup {
         iconView.setPreserveRatio(true);
 
         // Title
-        Label titleLabel = new Label(window.title());
+        Label titleLabel = new Label(formatWindowTitle(window.title(), appLabel));
         titleLabel.setTextFill(textColor);
         titleLabel.setStyle("-fx-font-size: 12px;");
 
@@ -129,6 +131,40 @@ public class WindowPreviewPopup extends Popup {
         });
 
         return item;
+    }
+
+    private String formatWindowTitle(String windowTitle, String appLabel) {
+        String sanitizedTitle = stripRedundantAppSuffix(windowTitle, appLabel);
+        return truncateTitle(sanitizedTitle, 40);
+    }
+
+    private String stripRedundantAppSuffix(String windowTitle, String appLabel) {
+        if (windowTitle == null) {
+            return "";
+        }
+        if (appLabel == null || appLabel.isBlank()) {
+            return windowTitle;
+        }
+
+        String suffix = " - " + appLabel;
+        if (windowTitle.regionMatches(true, Math.max(0, windowTitle.length() - suffix.length()), suffix, 0, suffix.length())) {
+            String stripped = windowTitle.substring(0, windowTitle.length() - suffix.length()).trim();
+            if (!stripped.isEmpty()) {
+                return stripped;
+            }
+        }
+
+        return windowTitle;
+    }
+
+    private String truncateTitle(String title, int maxLength) {
+        if (title == null) {
+            return "";
+        }
+        if (title.length() <= maxLength) {
+            return title;
+        }
+        return title.substring(0, maxLength) + "...";
     }
 
     public VBox getContainer() {
