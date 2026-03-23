@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.ColorPicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
@@ -80,18 +82,61 @@
                      </children></AnchorPane>
                </content>
             </Tab>
-            <Tab text="Dock Positioning">
-               <content>
-                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>
-                        <ImageView fitHeight="210.0" fitWidth="378.0" layoutX="68.0" layoutY="52.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../icons/positioning.png" />
-                           </image>
-                        </ImageView>
-                     </children></AnchorPane>
-               </content>
-            </Tab>
+             <Tab text="Dock Positioning">
+                <content>
+                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="320.0" prefWidth="558.0">
+                      <children>
+                         <Label layoutX="17.0" layoutY="8.0" styleClass="positioning-section-title" text="Positioning Mode" />
+                         <AnchorPane layoutX="17.0" layoutY="38.0" prefHeight="54.0" prefWidth="524.0" styleClass="positioning-panel">
+                            <children>
+                               <RadioButton fx:id="staticPositioningRadio" layoutX="18.0" layoutY="16.0" mnemonicParsing="false" onAction="#handlePositioningModeChange" styleClass="positioning-radio" text="Static positioning" />
+                               <RadioButton fx:id="dynamicPositioningRadio" layoutX="228.0" layoutY="16.0" mnemonicParsing="false" onAction="#handlePositioningModeChange" styleClass="positioning-radio" text="Dynamic positioning" />
+                            </children>
+                         </AnchorPane>
+                         <AnchorPane fx:id="staticPositioningPane" layoutX="17.0" layoutY="103.0" prefHeight="240.0" prefWidth="524.0">
+                            <children>
+                               <AnchorPane layoutX="0.0" layoutY="0.0" prefHeight="90.0" prefWidth="524.0" styleClass="positioning-panel">
+                                  <children>
+                                     <Label layoutX="16.0" layoutY="10.0" styleClass="positioning-section-title" text="Alignment" />
+                                     <Label layoutX="16.0" layoutY="41.0" styleClass="positioning-field-label" text="Vertical" />
+                                     <ChoiceBox fx:id="verticalPositionChoiceBox" layoutX="103.0" layoutY="37.0" prefWidth="150.0" styleClass="positioning-choice-box" />
+                                     <Label layoutX="284.0" layoutY="41.0" styleClass="positioning-field-label" text="Horizontal" />
+                                     <ChoiceBox fx:id="horizontalPositionChoiceBox" layoutX="390.0" layoutY="37.0" prefWidth="118.0" styleClass="positioning-choice-box" />
+                                  </children>
+                               </AnchorPane>
+                               <AnchorPane layoutX="0.0" layoutY="104.0" prefHeight="136.0" prefWidth="524.0" styleClass="positioning-panel">
+                                  <children>
+                                     <Label layoutX="16.0" layoutY="10.0" styleClass="positioning-section-title" text="Screen Spacing" />
+                                     <Label layoutX="16.0" layoutY="41.0" styleClass="positioning-field-label" text="Top" />
+                                     <Slider fx:id="topSpacingSlider" layoutX="96.0" layoutY="35.0" majorTickUnit="10.0" max="100.0" prefHeight="37.0" prefWidth="166.0" showTickLabels="true" showTickMarks="true" value="20.0" />
+                                     <Label layoutX="282.0" layoutY="41.0" styleClass="positioning-field-label" text="Left" />
+                                     <Slider fx:id="leftSpacingSlider" layoutX="362.0" layoutY="35.0" majorTickUnit="10.0" max="100.0" prefHeight="37.0" prefWidth="146.0" showTickLabels="true" showTickMarks="true" value="20.0" />
+                                     <Label layoutX="16.0" layoutY="88.0" styleClass="positioning-field-label" text="Right" />
+                                     <Slider fx:id="rightSpacingSlider" layoutX="96.0" layoutY="82.0" majorTickUnit="10.0" max="100.0" prefHeight="37.0" prefWidth="166.0" showTickLabels="true" showTickMarks="true" value="20.0" />
+                                     <Label layoutX="282.0" layoutY="88.0" styleClass="positioning-field-label" text="Down" />
+                                     <Slider fx:id="bottomSpacingSlider" layoutX="362.0" layoutY="82.0" majorTickUnit="10.0" max="100.0" prefHeight="37.0" prefWidth="146.0" showTickLabels="true" showTickMarks="true" value="20.0" />
+                                  </children>
+                               </AnchorPane>
+                            </children>
+                         </AnchorPane>
+                         <AnchorPane fx:id="dynamicPositioningPane" layoutX="17.0" layoutY="103.0" prefHeight="240.0" prefWidth="524.0">
+                            <children>
+                               <AnchorPane layoutX="0.0" layoutY="0.0" prefHeight="240.0" prefWidth="524.0" styleClass="positioning-panel">
+                                  <children>
+                                     <Label layoutX="16.0" layoutY="10.0" styleClass="positioning-section-title" text="Dynamic Positioning" />
+                                     <Label alignment="CENTER" layoutX="16.0" layoutY="39.0" prefHeight="18.0" prefWidth="492.0" styleClass="positioning-helper" text="Drag the dock freely on the screen to place it wherever you want." textAlignment="CENTER" />
+                                     <ImageView fitHeight="170.0" fitWidth="320.0" layoutX="102.0" layoutY="61.0" pickOnBounds="true" preserveRatio="true">
+                                        <image>
+                                           <Image url="@../icons/positioning.png" />
+                                        </image>
+                                     </ImageView>
+                                  </children>
+                               </AnchorPane>
+                            </children>
+                         </AnchorPane>
+                      </children></AnchorPane>
+                </content>
+             </Tab>
             <Tab text="General">
                <content>
                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">

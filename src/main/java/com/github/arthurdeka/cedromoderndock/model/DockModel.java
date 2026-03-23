@@ -23,6 +23,27 @@ public class DockModel {
     private double dockPositionX;
     @Getter
     private double dockPositionY;
+    @Getter
+    @Setter
+    private DockPositioningMode positioningMode = DockPositioningMode.STATIC;
+    @Getter
+    @Setter
+    private DockVerticalAnchor verticalAnchor = DockVerticalAnchor.TOP;
+    @Getter
+    @Setter
+    private DockHorizontalAnchor horizontalAnchor = DockHorizontalAnchor.LEFT;
+    @Getter
+    @Setter
+    private int topSpacing = 20;
+    @Getter
+    @Setter
+    private int leftSpacing = 20;
+    @Getter
+    @Setter
+    private int rightSpacing = 20;
+    @Getter
+    @Setter
+    private int bottomSpacing = 20;
 
     public void addItem(DockItem item) {
         items.add(item);

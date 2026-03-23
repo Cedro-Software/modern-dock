@@ -3,6 +3,7 @@ package com.github.arthurdeka.cedromoderndock;
 import com.github.arthurdeka.cedromoderndock.application.AppServices;
 import com.github.arthurdeka.cedromoderndock.application.DockAppearanceService;
 import com.github.arthurdeka.cedromoderndock.application.DockItemActionService;
+import com.github.arthurdeka.cedromoderndock.application.DockPositioningService;
 import com.github.arthurdeka.cedromoderndock.application.DockService;
 import com.github.arthurdeka.cedromoderndock.application.WindowPreviewService;
 import com.github.arthurdeka.cedromoderndock.controller.DockController;
@@ -64,6 +65,7 @@ public class App extends Application {
     private AppServices createServices() {
         DockService dockService = new DockService(new JsonDockRepository());
         DockAppearanceService appearanceService = new DockAppearanceService(dockService);
+        DockPositioningService positioningService = new DockPositioningService(dockService);
         DockItemActionService itemActionService = new DockItemActionService(
                 new DefaultProgramLauncher(),
                 new DefaultWindowsModuleLauncher()
@@ -73,6 +75,7 @@ public class App extends Application {
         return new AppServices(
                 dockService,
                 appearanceService,
+                positioningService,
                 itemActionService,
                 windowPreviewService,
                 new CachedWindowsIconGateway()

@@ -2,9 +2,12 @@ package com.github.arthurdeka.cedromoderndock.controller;
 
 import com.github.arthurdeka.cedromoderndock.App;
 import com.github.arthurdeka.cedromoderndock.application.AppServices;
+import com.github.arthurdeka.cedromoderndock.model.DockHorizontalAnchor;
 import com.github.arthurdeka.cedromoderndock.model.DockItem;
+import com.github.arthurdeka.cedromoderndock.model.DockPositioningMode;
 import com.github.arthurdeka.cedromoderndock.model.DockProgramItemModel;
 import com.github.arthurdeka.cedromoderndock.model.DockSettingsItemModel;
+import com.github.arthurdeka.cedromoderndock.model.DockVerticalAnchor;
 import com.github.arthurdeka.cedromoderndock.util.ColorManipulation;
 import com.github.arthurdeka.cedromoderndock.util.Logger;
 import javafx.beans.value.ChangeListener;
@@ -16,10 +19,14 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ListView;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.Slider;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -28,6 +35,7 @@ import java.io.File;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static com.github.arthurdeka.cedromoderndock.util.UIUtils.setStageIcon;
 
@@ -64,15 +72,40 @@ public class SettingsController {
     @FXML
     private ColorPicker dockColorPicker;
 
+    // Dock positioning tab
+    @FXML
+    private RadioButton staticPositioningRadio;
+    @FXML
+    private RadioButton dynamicPositioningRadio;
+    @FXML
+    private ChoiceBox<String> verticalPositionChoiceBox;
+    @FXML
+    private ChoiceBox<String> horizontalPositionChoiceBox;
+    @FXML
+    private Slider topSpacingSlider;
+    @FXML
+    private Slider leftSpacingSlider;
+    @FXML
+    private Slider rightSpacingSlider;
+    @FXML
+    private Slider bottomSpacingSlider;
+    @FXML
+    private AnchorPane staticPositioningPane;
+    @FXML
+    private AnchorPane dynamicPositioningPane;
+
     // misc
     private AppServices appServices;
     private Runnable dockRefreshAction = () -> {};
+    private Consumer<DockPositioningMode> positioningModeChangeAction = positioningMode -> {};
 
 
     // Run when FXML is loaded
     public void initialize() {
         Logger.info("[Initializing] SettingsController");
-
+        ToggleGroup positioningModeGroup = new ToggleGroup();
+        staticPositioningRadio.setToggleGroup(positioningModeGroup);
+        dynamicPositioningRadio.setToggleGroup(positioningModeGroup);
     }
 
     public void handleInitialization() {
@@ -116,6 +149,113 @@ public class SettingsController {
         Color RGBAcolor = ColorManipulation.fromRGBtoRGBA(appServices.appearanceService().getDockColorRGB());
         dockColorPicker.setValue(RGBAcolor);
 
+        initializePositioningControls();
+
+    }
+
+    private void initializePositioningControls() {
+        verticalPositionChoiceBox.setItems(FXCollections.observableArrayList("Top", "Middle", "Down"));
+        horizontalPositionChoiceBox.setItems(FXCollections.observableArrayList("Left", "Middle", "Right"));
+
+        DockPositioningMode positioningMode = appServices.positioningService().getPositioningMode();
+        if (positioningMode == DockPositioningMode.DYNAMIC) {
+            dynamicPositioningRadio.setSelected(true);
+        } else {
+            staticPositioningRadio.setSelected(true);
+        }
+
+        verticalPositionChoiceBox.setValue(toVerticalLabel(appServices.positioningService().getVerticalAnchor()));
+        horizontalPositionChoiceBox.setValue(toHorizontalLabel(appServices.positioningService().getHorizontalAnchor()));
+        topSpacingSlider.setValue(appServices.positioningService().getTopSpacing());
+        leftSpacingSlider.setValue(appServices.positioningService().getLeftSpacing());
+        rightSpacingSlider.setValue(appServices.positioningService().getRightSpacing());
+        bottomSpacingSlider.setValue(appServices.positioningService().getBottomSpacing());
+
+        verticalPositionChoiceBox.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
+            if (newValue != null) {
+                appServices.positioningService().setVerticalAnchor(toVerticalAnchor(newValue));
+                dockRefreshAction.run();
+            }
+        });
+
+        horizontalPositionChoiceBox.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
+            if (newValue != null) {
+                appServices.positioningService().setHorizontalAnchor(toHorizontalAnchor(newValue));
+                dockRefreshAction.run();
+            }
+        });
+
+        topSpacingSlider.valueProperty().addListener((observableValue, oldValue, newValue) -> {
+            appServices.positioningService().setTopSpacing((int) Math.round(newValue.doubleValue()));
+            dockRefreshAction.run();
+        });
+
+        leftSpacingSlider.valueProperty().addListener((observableValue, oldValue, newValue) -> {
+            appServices.positioningService().setLeftSpacing((int) Math.round(newValue.doubleValue()));
+            dockRefreshAction.run();
+        });
+
+        rightSpacingSlider.valueProperty().addListener((observableValue, oldValue, newValue) -> {
+            appServices.positioningService().setRightSpacing((int) Math.round(newValue.doubleValue()));
+            dockRefreshAction.run();
+        });
+
+        bottomSpacingSlider.valueProperty().addListener((observableValue, oldValue, newValue) -> {
+            appServices.positioningService().setBottomSpacing((int) Math.round(newValue.doubleValue()));
+            dockRefreshAction.run();
+        });
+
+        updatePositioningModeUI();
+    }
+
+    @FXML
+    private void handlePositioningModeChange() {
+        DockPositioningMode positioningMode = staticPositioningRadio.isSelected()
+                ? DockPositioningMode.STATIC
+                : DockPositioningMode.DYNAMIC;
+        positioningModeChangeAction.accept(positioningMode);
+        updatePositioningModeUI();
+        dockRefreshAction.run();
+    }
+
+    private void updatePositioningModeUI() {
+        boolean isStaticMode = staticPositioningRadio.isSelected();
+        staticPositioningPane.setVisible(isStaticMode);
+        staticPositioningPane.setManaged(isStaticMode);
+        dynamicPositioningPane.setVisible(!isStaticMode);
+        dynamicPositioningPane.setManaged(!isStaticMode);
+    }
+
+    private String toVerticalLabel(DockVerticalAnchor verticalAnchor) {
+        return switch (verticalAnchor) {
+            case TOP -> "Top";
+            case MIDDLE -> "Middle";
+            case DOWN -> "Down";
+        };
+    }
+
+    private DockVerticalAnchor toVerticalAnchor(String value) {
+        return switch (value) {
+            case "Middle" -> DockVerticalAnchor.MIDDLE;
+            case "Down" -> DockVerticalAnchor.DOWN;
+            default -> DockVerticalAnchor.TOP;
+        };
+    }
+
+    private String toHorizontalLabel(DockHorizontalAnchor horizontalAnchor) {
+        return switch (horizontalAnchor) {
+            case LEFT -> "Left";
+            case MIDDLE -> "Middle";
+            case RIGHT -> "Right";
+        };
+    }
+
+    private DockHorizontalAnchor toHorizontalAnchor(String value) {
+        return switch (value) {
+            case "Middle" -> DockHorizontalAnchor.MIDDLE;
+            case "Right" -> DockHorizontalAnchor.RIGHT;
+            default -> DockHorizontalAnchor.LEFT;
+        };
     }
 
 
@@ -186,6 +326,7 @@ public class SettingsController {
             AddWindowsModulesModalController addWindowsModulesModalController = loader.getController();
             addWindowsModulesModalController.setAppServices(appServices);
             addWindowsModulesModalController.setDockRefreshAction(dockRefreshAction);
+            addWindowsModulesModalController.setPositioningModeChangeAction(positioningModeChangeAction);
 
             Stage stage = new Stage();
             stage.setTitle("Add Windows Module");
@@ -313,6 +454,10 @@ public class SettingsController {
 
     public void setDockRefreshAction(Runnable dockRefreshAction) {
         this.dockRefreshAction = dockRefreshAction;
+    }
+
+    public void setPositioningModeChangeAction(Consumer<DockPositioningMode> positioningModeChangeAction) {
+        this.positioningModeChangeAction = positioningModeChangeAction;
     }
 
     @FXML

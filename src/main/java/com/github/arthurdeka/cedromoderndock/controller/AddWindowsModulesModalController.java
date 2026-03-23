@@ -2,6 +2,7 @@ package com.github.arthurdeka.cedromoderndock.controller;
 
 import com.github.arthurdeka.cedromoderndock.App;
 import com.github.arthurdeka.cedromoderndock.application.AppServices;
+import com.github.arthurdeka.cedromoderndock.model.DockPositioningMode;
 import com.github.arthurdeka.cedromoderndock.model.DockWindowsModuleItemModel;
 import com.github.arthurdeka.cedromoderndock.util.Logger;
 import javafx.fxml.FXML;
@@ -19,6 +20,7 @@ public class AddWindowsModulesModalController {
 
     private AppServices appServices;
     private Runnable dockRefreshAction = () -> {};
+    private java.util.function.Consumer<DockPositioningMode> positioningModeChangeAction = positioningMode -> {};
 
 
     // Run when FXML is loaded
@@ -67,6 +69,7 @@ public class AddWindowsModulesModalController {
             SettingsController settingsController = loader.getController();
             settingsController.setAppServices(appServices);
             settingsController.setDockRefreshAction(dockRefreshAction);
+            settingsController.setPositioningModeChangeAction(positioningModeChangeAction);
             settingsController.handleInitialization();
 
             Stage stage = new Stage();
@@ -89,6 +92,10 @@ public class AddWindowsModulesModalController {
 
     public void setDockRefreshAction(Runnable dockRefreshAction) {
         this.dockRefreshAction = dockRefreshAction;
+    }
+
+    public void setPositioningModeChangeAction(java.util.function.Consumer<DockPositioningMode> positioningModeChangeAction) {
+        this.positioningModeChangeAction = positioningModeChangeAction;
     }
 
 

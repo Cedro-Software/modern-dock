@@ -155,6 +155,87 @@
     -fx-text-fill: #cccccc;
 }
 
+.radio-button {
+    -fx-text-fill: #d8e6f2;
+}
+
+.radio-button .radio {
+    -fx-background-color: #2b2b2b;
+    -fx-border-color: #6a6a6a;
+    -fx-border-radius: 20;
+    -fx-background-radius: 20;
+}
+
+.radio-button:selected .radio {
+    -fx-border-color: #007acc;
+}
+
+.radio-button:selected .dot {
+    -fx-background-color: #007acc;
+    -fx-background-insets: 0;
+}
+
+.choice-box {
+    -fx-background-color: #2b2b2b;
+    -fx-border-color: #555555;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-mark-color: #007acc;
+}
+
+.choice-box > .label {
+    -fx-text-fill: #f0f6fc;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.choice-box .context-menu {
+    -fx-background-color: #2b2b2b;
+}
+
+.choice-box .menu-item:focused {
+    -fx-background-color: #007acc;
+}
+
+.choice-box .menu-item > .label {
+    -fx-text-fill: #f0f6fc;
+    -fx-font-size: 13px;
+}
+
+.choice-box .menu-item:focused > .label {
+    -fx-text-fill: white;
+}
+
+.positioning-panel {
+    -fx-background-color: #353535;
+    -fx-border-color: #4a4a4a;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+}
+
+.positioning-section-title {
+    -fx-text-fill: #007acc;
+    -fx-font-size: 17px;
+    -fx-font-weight: bold;
+}
+
+.positioning-field-label {
+    -fx-text-fill: #d8e6f2;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.positioning-helper {
+    -fx-text-fill: #b8c7d3;
+    -fx-font-size: 12px;
+    -fx-font-weight: normal;
+}
+
+.positioning-radio {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
 
 /* --- ColorPicker Styles --- */
 #dockColorPicker {

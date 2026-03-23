@@ -4,6 +4,7 @@ import com.github.arthurdeka.cedromoderndock.App;
 import com.github.arthurdeka.cedromoderndock.application.AppServices;
 import com.github.arthurdeka.cedromoderndock.application.DockTheme;
 import com.github.arthurdeka.cedromoderndock.model.DockItem;
+import com.github.arthurdeka.cedromoderndock.model.DockPositioningMode;
 import com.github.arthurdeka.cedromoderndock.model.DockProgramItemModel;
 import com.github.arthurdeka.cedromoderndock.model.DockSettingsItemModel;
 import com.github.arthurdeka.cedromoderndock.model.DockWindowsModuleItemModel;
@@ -89,16 +90,26 @@ public class DockController {
     // enables dock drag effect
     private void enableDrag() {
         rootPane.setOnMousePressed(event -> {
+            if (!appServices.positioningService().isDynamicPositioning()) {
+                return;
+            }
             xOffset = event.getSceneX();
             yOffset = event.getSceneY();
         });
         rootPane.setOnMouseDragged(event -> {
+            if (!appServices.positioningService().isDynamicPositioning()) {
+                return;
+            }
             stage.setX(event.getScreenX() - xOffset);
             stage.setY(event.getScreenY() - yOffset);
         });
 
         // saves the dock position on the model
         rootPane.setOnMouseReleased(event -> {
+            if (!appServices.positioningService().isDynamicPositioning()) {
+                appServices.positioningService().applyPosition(stage);
+                return;
+            }
             appServices.dockService().setDockPosition(stage.getX(), stage.getY());
         });
     }
@@ -136,9 +147,7 @@ public class DockController {
 
         // resize DockView window to account for DockItem additions or removing
         stage.sizeToScene();
-        // sets DockView to the saved location on screen
-        stage.setX(dock.getDockPositionX());
-        stage.setY(dock.getDockPositionY());
+        appServices.positioningService().applyPosition(stage);
     }
 
     private Button createButton(DockItem item) {
@@ -290,6 +299,7 @@ public class DockController {
             SettingsController settingsController = loader.getController();
             settingsController.setAppServices(appServices);
             settingsController.setDockRefreshAction(this::updateDockUI);
+            settingsController.setPositioningModeChangeAction(this::handlePositioningModeChange);
             settingsController.handleInitialization();
 
             Stage stage = new Stage();
@@ -360,5 +370,13 @@ public class DockController {
 
     public void setAppServices(AppServices appServices) {
         this.appServices = appServices;
+    }
+
+    private void handlePositioningModeChange(DockPositioningMode positioningMode) {
+        DockPositioningMode currentMode = appServices.positioningService().getPositioningMode();
+        if (currentMode == DockPositioningMode.STATIC && positioningMode == DockPositioningMode.DYNAMIC) {
+            appServices.dockService().setDockPosition(stage.getX(), stage.getY());
+        }
+        appServices.positioningService().setPositioningMode(positioningMode);
     }
 }
