@@ -1,12 +1,12 @@
 package com.github.arthurdeka.cedromoderndock.controller;
 
 import com.github.arthurdeka.cedromoderndock.App;
+import com.github.arthurdeka.cedromoderndock.application.AppServices;
 import com.github.arthurdeka.cedromoderndock.model.DockItem;
 import com.github.arthurdeka.cedromoderndock.model.DockProgramItemModel;
 import com.github.arthurdeka.cedromoderndock.model.DockSettingsItemModel;
 import com.github.arthurdeka.cedromoderndock.util.ColorManipulation;
 import com.github.arthurdeka.cedromoderndock.util.Logger;
-import com.github.arthurdeka.cedromoderndock.util.WindowsIconHandler;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -65,7 +65,8 @@ public class SettingsController {
     private ColorPicker dockColorPicker;
 
     // misc
-    private DockController dockController;
+    private AppServices appServices;
+    private Runnable dockRefreshAction = () -> {};
 
 
     // Run when FXML is loaded
@@ -77,7 +78,7 @@ public class SettingsController {
     public void handleInitialization() {
 
         // add listener to listView
-        addDockItemsToListView(dockController.getDockItems());
+        addDockItemsToListView(appServices.dockService().getItems());
         listView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observableValue, Object oldValue, Object newValue) {
@@ -87,32 +88,32 @@ public class SettingsController {
 
 
         // add listener to sliders
-        iconSizeSlider.setValue(dockController.getDockIconsSize());
+        iconSizeSlider.setValue(appServices.appearanceService().getIconsSize());
         iconSizeSlider.valueProperty().addListener(((observableValue, oldValue, newValue) -> {
             int value = (int) iconSizeSlider.getValue();
             handleSetIconSizeSlider(value);
         }));
 
-        spacingBetweenIconsSlider.setValue(dockController.getDockIconsSpacing());
+        spacingBetweenIconsSlider.setValue(appServices.appearanceService().getSpacingBetweenIcons());
         spacingBetweenIconsSlider.valueProperty().addListener(((observableValue, oldValue, newValue) -> {
             int value = (int) spacingBetweenIconsSlider.getValue();
             handleSetIconsSpacingSlider(value);
         }));
 
-        dockTransparencySlider.setValue(dockController.getDockTransparency());
+        dockTransparencySlider.setValue(appServices.appearanceService().getDockTransparencyPercentage());
         dockTransparencySlider.valueProperty().addListener(((observableValue, oldValue, newValue) -> {
             int value = (int) dockTransparencySlider.getValue();
             handleSetDockTransparencySlider(value);
         }));
 
-        dockBorderRoundingSlider.setValue(dockController.getDockBorderRounding());
+        dockBorderRoundingSlider.setValue(appServices.appearanceService().getDockBorderRounding());
         dockBorderRoundingSlider.valueProperty().addListener(((observableValue, oldValue, newValue) -> {
             int value = (int) dockBorderRoundingSlider.getValue();
             handleSetDockBorderRoundingSlider(value);
         }));
 
         // set current color in colorpicker
-        Color RGBAcolor = ColorManipulation.fromRGBtoRGBA(dockController.getDockColorRGB());
+        Color RGBAcolor = ColorManipulation.fromRGBtoRGBA(appServices.appearanceService().getDockColorRGB());
         dockColorPicker.setValue(RGBAcolor);
 
     }
@@ -120,7 +121,13 @@ public class SettingsController {
 
     private void handleListViewItemSelection() {
         int selectedIdx = listView.getSelectionModel().getSelectedIndex();
-        DockItem item = dockController.getDockItems().get(selectedIdx);
+        if (selectedIdx < 0) {
+            removeProgramButton.setDisable(true);
+            moveItemUpButton.setDisable(true);
+            moveItemDownButton.setDisable(true);
+            return;
+        }
+        DockItem item = appServices.dockService().getItems().get(selectedIdx);
 
         // disables removeProgramButton if the selected item is the Settings item
         if (item instanceof DockSettingsItemModel) {
@@ -177,7 +184,8 @@ public class SettingsController {
             Parent root = loader.load();
 
             AddWindowsModulesModalController addWindowsModulesModalController = loader.getController();
-            addWindowsModulesModalController.setDockController(dockController);
+            addWindowsModulesModalController.setAppServices(appServices);
+            addWindowsModulesModalController.setDockRefreshAction(dockRefreshAction);
 
             Stage stage = new Stage();
             stage.setTitle("Add Windows Module");
@@ -208,17 +216,17 @@ public class SettingsController {
             String selectedExeName = Paths.get(file.getAbsolutePath()).getFileName().toString().replace(".exe", "");
 
             //extracting icon
-            WindowsIconHandler.extractAndCacheIcon(selectedExePath);
+            appServices.iconGateway().cacheProgramIcon(selectedExePath);
 
             // saving to dock
             DockItem newItem = new DockProgramItemModel(selectedExeName, selectedExePath);
-            dockController.addDockItem(newItem);
+            appServices.dockService().addItem(newItem);
             Logger.info("[listView] Program added: " + selectedExeName);
 
         }
 
-        addDockItemsToListView(dockController.getDockItems());
-        dockController.updateDockUI();
+        addDockItemsToListView(appServices.dockService().getItems());
+        dockRefreshAction.run();
 
     }
 
@@ -229,10 +237,10 @@ public class SettingsController {
         // deletes selected option
         Logger.info("[listView] Removing item on index: " + selectedIdx);
 
-        dockController.removeDockItem(selectedIdx);
+        appServices.dockService().removeItem(selectedIdx);
         listItems.remove(selectedIdx);
 
-        dockController.updateDockUI();
+        dockRefreshAction.run();
 
     }
 
@@ -243,7 +251,7 @@ public class SettingsController {
         if (event.getSource() == moveItemUpButton) {
             Logger.info("[listView] moving item up");
             Collections.swap(listItems, selectedIdx, selectedIdx - 1);
-            dockController.swapItems(selectedIdx, selectedIdx - 1);
+            appServices.dockService().swapItems(selectedIdx, selectedIdx - 1);
 
             // set new position as selected
             listView.getSelectionModel().select(selectedIdx - 1);
@@ -251,7 +259,7 @@ public class SettingsController {
         } else {
             Logger.info("[listView] moving item down");
             Collections.swap(listItems, selectedIdx, selectedIdx + 1);
-            dockController.swapItems(selectedIdx, selectedIdx + 1);
+            appServices.dockService().swapItems(selectedIdx, selectedIdx + 1);
 
             // set new position as selected
             listView.getSelectionModel().select(selectedIdx + 1);
@@ -266,21 +274,25 @@ public class SettingsController {
     // Icons customization tab
 
     private void handleSetIconSizeSlider(int value) {
-        dockController.setDockIconsSize(value);
+        appServices.appearanceService().setIconsSize(value);
+        dockRefreshAction.run();
     }
 
     private void handleSetIconsSpacingSlider(int value) {
-        dockController.setDockIconsSpacing(value);
+        appServices.appearanceService().setSpacingBetweenIcons(value);
+        dockRefreshAction.run();
     }
 
     // dock customization tab
 
     private void handleSetDockTransparencySlider(int value) {
-        dockController.setDockTransparency(value);
+        appServices.appearanceService().setDockTransparencyPercentage(value);
+        dockRefreshAction.run();
     }
 
     private void handleSetDockBorderRoundingSlider(int value) {
-        dockController.setDockBorderRounding(value);
+        appServices.appearanceService().setDockBorderRounding(value);
+        dockRefreshAction.run();
     }
 
     @FXML
@@ -288,14 +300,19 @@ public class SettingsController {
         String RGBAColor = String.valueOf(dockColorPicker.getValue());
         String RGBColor = ColorManipulation.fromRGBAtoRGB(RGBAColor);
 
-        dockController.setDockColorRGB(RGBColor);
+        appServices.appearanceService().setDockColorRGB(RGBColor);
+        dockRefreshAction.run();
 
     }
 
     // misc ======
 
-    public void setDockController(DockController dockController) {
-        this.dockController = dockController;
+    public void setAppServices(AppServices appServices) {
+        this.appServices = appServices;
+    }
+
+    public void setDockRefreshAction(Runnable dockRefreshAction) {
+        this.dockRefreshAction = dockRefreshAction;
     }
 
     @FXML

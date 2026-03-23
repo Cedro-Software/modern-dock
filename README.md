@@ -35,7 +35,17 @@
 ## 👨‍🎨 How To Contribute
 
 ## Understand the project architecture:
-![arch](https://github.com/user-attachments/assets/a371fb62-baef-442f-a507-8bfd88adcf24)
+
+The project now follows a lightweight layered architecture:
+
+- `controller`: JavaFX controllers and UI event handling
+- `application`: dock use cases, appearance rules, item actions and preview orchestration
+- `domain`: ports/interfaces for persistence, icon resolution, program launch and native window queries
+- `infrastructure`: Jackson persistence and Windows-specific adapters
+- `model`: serializable dock data structures used by the application layer
+- `view` and `resources`: popup rendering, FXML, CSS and static assets
+
+`App.java` is responsible for composing these dependencies and injecting them into the JavaFX controllers.
 
 <!-- PREREQUISITES -->
 ##  Prerequisites

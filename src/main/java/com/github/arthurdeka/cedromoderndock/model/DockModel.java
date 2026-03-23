@@ -1,7 +1,4 @@
 package com.github.arthurdeka.cedromoderndock.model;
-
-import com.github.arthurdeka.cedromoderndock.util.Logger;
-import com.github.arthurdeka.cedromoderndock.util.SaveAndLoadDockSettings;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -72,12 +69,5 @@ public class DockModel {
     public void setDockPosition(Double PositionX, Double PositionY) {
         this.dockPositionX = PositionX;
         this.dockPositionY = PositionY;
-        saveChanges();
-    }
-
-    public void saveChanges() {
-        SaveAndLoadDockSettings.save(this);
-        Logger.info("[DockModel] changes saved");
-
     }
 }

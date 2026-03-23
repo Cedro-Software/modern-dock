@@ -13,4 +13,5 @@ module com.github.arthurdeka.cedromoderndock {
     opens com.github.arthurdeka.cedromoderndock.model to com.fasterxml.jackson.databind;
 
     exports com.github.arthurdeka.cedromoderndock;
+    exports com.github.arthurdeka.cedromoderndock.controller to javafx.fxml;
 }

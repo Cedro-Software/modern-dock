@@ -1,6 +1,7 @@
 package com.github.arthurdeka.cedromoderndock.controller;
 
 import com.github.arthurdeka.cedromoderndock.App;
+import com.github.arthurdeka.cedromoderndock.application.AppServices;
 import com.github.arthurdeka.cedromoderndock.model.DockWindowsModuleItemModel;
 import com.github.arthurdeka.cedromoderndock.util.Logger;
 import javafx.fxml.FXML;
@@ -16,7 +17,8 @@ public class AddWindowsModulesModalController {
     @FXML
     private ListView listView;
 
-    private DockController dockController;
+    private AppServices appServices;
+    private Runnable dockRefreshAction = () -> {};
 
 
     // Run when FXML is loaded
@@ -38,24 +40,16 @@ public class AddWindowsModulesModalController {
         int selectedIdx = listView.getSelectionModel().getSelectedIndex();
 
         if (selectedIdx == 0) {
-            dockController.addDockItem(new DockWindowsModuleItemModel("My Computer", "mypc"));
-            dockController.updateDockUI();
+            appServices.dockService().addItem(new DockWindowsModuleItemModel("My Computer", "mypc"));
+        } else if (selectedIdx == 1) {
+            appServices.dockService().addItem(new DockWindowsModuleItemModel("Recycle Bin", "trash"));
+        } else if (selectedIdx == 2) {
+            appServices.dockService().addItem(new DockWindowsModuleItemModel("Control Panel", "ctrlpnl"));
+        } else if (selectedIdx == 3) {
+            appServices.dockService().addItem(new DockWindowsModuleItemModel("Settings", "pconfig"));
         }
 
-        else if (selectedIdx == 1) {
-            dockController.addDockItem(new DockWindowsModuleItemModel("Recycle Bin", "trash"));
-            dockController.updateDockUI();
-        }
-
-        else if (selectedIdx == 2) {
-            dockController.addDockItem(new DockWindowsModuleItemModel("Control Panel", "ctrlpnl"));
-            dockController.updateDockUI();
-        }
-
-        else if (selectedIdx == 3) {
-            dockController.addDockItem(new DockWindowsModuleItemModel("Settings", "pconfig"));
-            dockController.updateDockUI();
-        }
+        dockRefreshAction.run();
 
         // come back to dockSettings
         openSettingsWindow();
@@ -71,7 +65,8 @@ public class AddWindowsModulesModalController {
             Parent root = loader.load();
 
             SettingsController settingsController = loader.getController();
-            settingsController.setDockController(dockController);
+            settingsController.setAppServices(appServices);
+            settingsController.setDockRefreshAction(dockRefreshAction);
             settingsController.handleInitialization();
 
             Stage stage = new Stage();
@@ -88,8 +83,12 @@ public class AddWindowsModulesModalController {
 
     }
 
-    public void setDockController(DockController dockController) {
-        this.dockController = dockController;
+    public void setAppServices(AppServices appServices) {
+        this.appServices = appServices;
+    }
+
+    public void setDockRefreshAction(Runnable dockRefreshAction) {
+        this.dockRefreshAction = dockRefreshAction;
     }
 
 

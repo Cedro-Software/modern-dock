@@ -1,6 +1,6 @@
 package com.github.arthurdeka.cedromoderndock.view;
 
-import com.github.arthurdeka.cedromoderndock.model.DockModel;
+import com.github.arthurdeka.cedromoderndock.application.DockTheme;
 import com.github.arthurdeka.cedromoderndock.util.NativeWindowUtils;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Bounds;
@@ -18,6 +18,7 @@ import javafx.stage.Popup;
 import javafx.stage.Screen;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class WindowPreviewPopup extends Popup {
 
@@ -41,23 +42,28 @@ public class WindowPreviewPopup extends Popup {
         heightProperty().addListener(sizeListener);
     }
 
-    public void updateContent(List<NativeWindowUtils.WindowInfo> windows, Image appIcon, DockModel model) {
+    public void updateContent(
+            List<NativeWindowUtils.WindowInfo> windows,
+            Image appIcon,
+            DockTheme dockTheme,
+            Consumer<NativeWindowUtils.WindowInfo> activateWindowAction
+    ) {
         container.getChildren().clear();
 
         // Apply style from dock model so the popup matches the dock theme.
         String style = String.format(
                 "-fx-background-color: rgba(%s %s); -fx-background-radius: %s;",
-                model.getDockColorRGB(),
-                model.getDockTransparency(),
-                model.getDockBorderRounding()
+                dockTheme.colorRgb(),
+                dockTheme.transparency(),
+                dockTheme.borderRounding()
         );
         container.setStyle(style);
 
         // Choose a readable text color based on dock background brightness.
-        Color textColor = getTextColorForBackground(model.getDockColorRGB());
+        Color textColor = getTextColorForBackground(dockTheme.colorRgb());
 
         for (NativeWindowUtils.WindowInfo window : windows) {
-            HBox item = createWindowItem(window, appIcon, textColor);
+            HBox item = createWindowItem(window, appIcon, textColor, activateWindowAction);
             container.getChildren().add(item);
         }
     }
@@ -81,7 +87,12 @@ public class WindowPreviewPopup extends Popup {
         return Color.WHITE;
     }
 
-    private HBox createWindowItem(NativeWindowUtils.WindowInfo window, Image appIcon, Color textColor) {
+    private HBox createWindowItem(
+            NativeWindowUtils.WindowInfo window,
+            Image appIcon,
+            Color textColor,
+            Consumer<NativeWindowUtils.WindowInfo> activateWindowAction
+    ) {
         HBox item = new HBox();
         item.setSpacing(10);
         item.setPadding(new Insets(5, 10, 5, 10));
@@ -113,7 +124,7 @@ public class WindowPreviewPopup extends Popup {
 
         // Click action
         item.setOnMouseClicked(e -> {
-            NativeWindowUtils.activateWindow(window.hwnd());
+            activateWindowAction.accept(window);
             this.hide();
         });
 

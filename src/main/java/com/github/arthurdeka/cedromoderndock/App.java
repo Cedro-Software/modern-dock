@@ -1,11 +1,19 @@
 package com.github.arthurdeka.cedromoderndock;
 
+import com.github.arthurdeka.cedromoderndock.application.AppServices;
+import com.github.arthurdeka.cedromoderndock.application.DockAppearanceService;
+import com.github.arthurdeka.cedromoderndock.application.DockItemActionService;
+import com.github.arthurdeka.cedromoderndock.application.DockService;
+import com.github.arthurdeka.cedromoderndock.application.WindowPreviewService;
 import com.github.arthurdeka.cedromoderndock.controller.DockController;
-import com.github.arthurdeka.cedromoderndock.util.Logger;
+import com.github.arthurdeka.cedromoderndock.infrastructure.persistence.JsonDockRepository;
+import com.github.arthurdeka.cedromoderndock.infrastructure.system.CachedWindowsIconGateway;
+import com.github.arthurdeka.cedromoderndock.infrastructure.system.DefaultProgramLauncher;
+import com.github.arthurdeka.cedromoderndock.infrastructure.system.DefaultWindowsModuleLauncher;
+import com.github.arthurdeka.cedromoderndock.infrastructure.system.JnaWindowQueryGateway;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -17,6 +25,7 @@ import static com.github.arthurdeka.cedromoderndock.util.UIUtils.setStageIcon;
 public class App extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException {
+        AppServices appServices = createServices();
 
         // invisble primary stage to dont show the dock icon in the taskbar
         primaryStage.initStyle(StageStyle.UTILITY);
@@ -32,6 +41,7 @@ public class App extends Application {
 
         DockController dockController = loader.getController();
         dockController.setStage(dockStage);
+        dockController.setAppServices(appServices);
         dockController.handleInitialization();
 
         // configuring dock stage.
@@ -49,5 +59,23 @@ public class App extends Application {
 
     public static void main(String[] args) {
         launch();
+    }
+
+    private AppServices createServices() {
+        DockService dockService = new DockService(new JsonDockRepository());
+        DockAppearanceService appearanceService = new DockAppearanceService(dockService);
+        DockItemActionService itemActionService = new DockItemActionService(
+                new DefaultProgramLauncher(),
+                new DefaultWindowsModuleLauncher()
+        );
+        WindowPreviewService windowPreviewService = new WindowPreviewService(new JnaWindowQueryGateway());
+
+        return new AppServices(
+                dockService,
+                appearanceService,
+                itemActionService,
+                windowPreviewService,
+                new CachedWindowsIconGateway()
+        );
     }
 }

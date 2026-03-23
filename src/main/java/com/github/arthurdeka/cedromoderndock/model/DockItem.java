@@ -1,5 +1,6 @@
 package com.github.arthurdeka.cedromoderndock.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -20,11 +21,10 @@ public interface DockItem {
 
     String getLabel();
     String getPath();
+    @JsonIgnore
+    DockItemType getType();
 
     void setLabel(String label);
     void setPath(String path);
-
-    // Action to perform when object is clicked.
-    void performAction();
 
 }

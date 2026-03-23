@@ -1,10 +1,13 @@
 package com.github.arthurdeka.cedromoderndock.controller;
 
 import com.github.arthurdeka.cedromoderndock.App;
-import com.github.arthurdeka.cedromoderndock.model.*;
+import com.github.arthurdeka.cedromoderndock.application.AppServices;
+import com.github.arthurdeka.cedromoderndock.application.DockTheme;
+import com.github.arthurdeka.cedromoderndock.model.DockItem;
+import com.github.arthurdeka.cedromoderndock.model.DockProgramItemModel;
+import com.github.arthurdeka.cedromoderndock.model.DockSettingsItemModel;
+import com.github.arthurdeka.cedromoderndock.model.DockWindowsModuleItemModel;
 import com.github.arthurdeka.cedromoderndock.util.Logger;
-import com.github.arthurdeka.cedromoderndock.util.SaveAndLoadDockSettings;
-import com.github.arthurdeka.cedromoderndock.util.WindowsIconHandler;
 import javafx.animation.PauseTransition;
 import javafx.concurrent.Task;
 import javafx.util.Duration;
@@ -37,7 +40,7 @@ public class DockController {
     @FXML
     private HBox hBoxContainer;
 
-    private DockModel model;
+    private AppServices appServices;
     private Stage stage;
     // Runs native window queries off the FX thread; single daemon thread avoids unbounded thread creation.
     private final ExecutorService windowPreviewExecutor = Executors.newSingleThreadExecutor(r -> {
@@ -59,8 +62,6 @@ public class DockController {
 
     // Run when FXML is loaded
     public void handleInitialization() {
-        model = SaveAndLoadDockSettings.load();
-
         // Popup that lists open windows for a program icon on hover.
         windowPreviewPopup = new WindowPreviewPopup();
         windowPreviewPopup.getContainer().setOnMouseEntered(e -> {
@@ -98,34 +99,35 @@ public class DockController {
 
         // saves the dock position on the model
         rootPane.setOnMouseReleased(event -> {
-            model.setDockPosition(stage.getX(), stage.getY());
+            appServices.dockService().setDockPosition(stage.getX(), stage.getY());
         });
     }
 
     public void addDockItem(DockItem item) {
-        model.addItem(item);
+        appServices.dockService().addItem(item);
     }
 
     public void removeDockItem(int index) {
-        model.removeItem(index);
+        appServices.dockService().removeItem(index);
     }
 
     public List<DockItem> getDockItems() {
-        return model.getItems();
+        return appServices.dockService().getItems();
     }
 
     public void swapItems(int firstItemIdx, int secondItemIdx) {
-        model.swapItems(firstItemIdx, secondItemIdx);
+        appServices.dockService().swapItems(firstItemIdx, secondItemIdx);
         updateDockUI();
     }
 
     /* this method updates the DockView (actual rendered Dock) style and saves the changes */
     public void updateDockUI() {
+        var dock = appServices.dockService().getDock();
         hBoxContainer.getChildren().clear();
         hBoxContainer.setSpacing(getDockIconsSpacing());
-        hBoxContainer.setStyle("-fx-background-color: rgba(" + model.getDockColorRGB() + " " + model.getDockTransparency() + ");" + "-fx-background-radius: " + model.getDockBorderRounding() + ";");
+        hBoxContainer.setStyle("-fx-background-color: rgba(" + dock.getDockColorRGB() + " " + dock.getDockTransparency() + ");" + "-fx-background-radius: " + dock.getDockBorderRounding() + ";");
 
-        for (DockItem item : model.getItems()) {
+        for (DockItem item : dock.getItems()) {
             Button button = createButton(item);
             if (button != null) {
                 hBoxContainer.getChildren().add(button);
@@ -135,9 +137,8 @@ public class DockController {
         // resize DockView window to account for DockItem additions or removing
         stage.sizeToScene();
         // sets DockView to the saved location on screen
-        stage.setX(model.getDockPositionX());
-        stage.setY(model.getDockPositionY());
-        saveChanges();
+        stage.setX(dock.getDockPositionX());
+        stage.setY(dock.getDockPositionY());
     }
 
     private Button createButton(DockItem item) {
@@ -145,48 +146,48 @@ public class DockController {
         if (item instanceof DockSettingsItemModel) {
             Image icon = new Image(getClass().getResourceAsStream(item.getPath()));
             ImageView imageView = new ImageView(icon);
-            imageView.setFitWidth(model.getIconsSize());
-            imageView.setFitHeight(model.getIconsSize());
+            imageView.setFitWidth(appServices.appearanceService().getIconsSize());
+            imageView.setFitHeight(appServices.appearanceService().getIconsSize());
 
             Button button = new Button(item.getLabel());
             button.getStyleClass().add("dock-button");
             button.setGraphic(imageView);
-            button.setOnAction(e -> openSettingsWindow());
+            button.setOnAction(e -> appServices.itemActionService().execute(item, this::openSettingsWindow));
             return button;
 
         } else if (item instanceof DockWindowsModuleItemModel) {
             Image icon = new Image(getClass().getResourceAsStream(item.getPath()));
             ImageView imageView = new ImageView(icon);
-            imageView.setFitWidth(model.getIconsSize());
-            imageView.setFitHeight(model.getIconsSize());
+            imageView.setFitWidth(appServices.appearanceService().getIconsSize());
+            imageView.setFitHeight(appServices.appearanceService().getIconsSize());
 
             Button button = new Button(item.getLabel());
             button.getStyleClass().add("dock-button");
             button.setGraphic(imageView);
-            button.setOnAction(e -> item.performAction());
+            button.setOnAction(e -> appServices.itemActionService().execute(item, this::openSettingsWindow));
             return button;
         } else if (item instanceof DockProgramItemModel) {
             // Logic for DockProgramItemModel runs on a background thread.
-            Path iconPath = WindowsIconHandler.getCachedIconPath(item.getPath());
+            Path iconPath = appServices.iconGateway().resolveProgramIcon(((DockProgramItemModel) item).getExecutablePath());
 
             // if file does not exist
-            if (Files.notExists(iconPath)) {
+            if (iconPath == null || Files.notExists(iconPath)) {
                 Logger.error("DockController - createButton - path for cached icon not found");
                 return null;
             }
 
             Image icon = new Image(iconPath.toUri().toString());
             ImageView imageView = new ImageView(icon);
-            imageView.setFitWidth(model.getIconsSize());
-            imageView.setFitHeight(model.getIconsSize());
+            imageView.setFitWidth(appServices.appearanceService().getIconsSize());
+            imageView.setFitHeight(appServices.appearanceService().getIconsSize());
 
             Button button = new Button(item.getLabel());
             button.getStyleClass().add("dock-button");
-            imageView.setFitWidth(model.getIconsSize());
-            imageView.setFitHeight(model.getIconsSize());
+            imageView.setFitWidth(appServices.appearanceService().getIconsSize());
+            imageView.setFitHeight(appServices.appearanceService().getIconsSize());
             button.setGraphic(imageView);
 
-            button.setOnAction(e -> item.performAction());
+            button.setOnAction(e -> appServices.itemActionService().execute(item, this::openSettingsWindow));
 
             // Show a window list preview when hovering this program icon.
             setupHoverPreview(button, (DockProgramItemModel) item, icon);
@@ -226,7 +227,7 @@ public class DockController {
         Task<List<NativeWindowUtils.WindowInfo>> task = new Task<>() {
             @Override
             protected List<NativeWindowUtils.WindowInfo> call() throws Exception {
-                return NativeWindowUtils.getOpenWindows(item.getPath());
+                return appServices.windowPreviewService().loadPreview(item);
             }
         };
 
@@ -242,7 +243,8 @@ public class DockController {
             }
             // Only show popup when there is at least one window.
             if (!windows.isEmpty()) {
-                windowPreviewPopup.updateContent(windows, icon, model);
+                DockTheme dockTheme = appServices.appearanceService().getDockTheme();
+                windowPreviewPopup.updateContent(windows, icon, dockTheme, appServices.windowPreviewService()::activate);
                 windowPreviewPopup.showAbove(button, hBoxContainer);
                 popupOwnerButton = button;
 
@@ -280,7 +282,8 @@ public class DockController {
             Parent root = loader.load();
 
             SettingsController settingsController = loader.getController();
-            settingsController.setDockController(this);
+            settingsController.setAppServices(appServices);
+            settingsController.setDockRefreshAction(this::updateDockUI);
             settingsController.handleInitialization();
 
             Stage stage = new Stage();
@@ -296,42 +299,40 @@ public class DockController {
     }
 
     public void setDockIconsSize(int iconsSize) {
-        model.setIconsSize(iconsSize);
+        appServices.appearanceService().setIconsSize(iconsSize);
         updateDockUI();
     }
 
     public int getDockIconsSize() {
-        return model.getIconsSize();
+        return appServices.appearanceService().getIconsSize();
     }
 
     public void setDockIconsSpacing(int spacingValue) {
-        model.setSpacingBetweenIcons(spacingValue);
+        appServices.appearanceService().setSpacingBetweenIcons(spacingValue);
         updateDockUI();
     }
 
     public int getDockIconsSpacing() {
-        return model.getSpacingBetweenIcons();
+        return appServices.appearanceService().getSpacingBetweenIcons();
     }
 
     public int getDockTransparency() {
-        int intValue = (int) (model.getDockTransparency() * 100);
-        return intValue;
+        return appServices.appearanceService().getDockTransparencyPercentage();
     }
 
     public void setDockTransparency(int value) {
-        double doubleValue = (double) value / 100;
-        model.setDockTransparency(doubleValue);
+        appServices.appearanceService().setDockTransparencyPercentage(value);
         updateDockUI();
     }
 
     public void setDockBorderRounding(int value) {
-        model.setDockBorderRounding(value);
+        appServices.appearanceService().setDockBorderRounding(value);
         updateDockUI();
 
     }
 
     public int getDockBorderRounding() {
-        return model.getDockBorderRounding();
+        return appServices.appearanceService().getDockBorderRounding();
     }
 
     public void setStage(Stage stage) {
@@ -339,15 +340,19 @@ public class DockController {
     }
 
     public String getDockColorRGB() {
-        return model.getDockColorRGB();
+        return appServices.appearanceService().getDockColorRGB();
     }
 
     public void setDockColorRGB(String value) {
-        model.setDockColorRGB(value);
+        appServices.appearanceService().setDockColorRGB(value);
         updateDockUI();
     }
 
     public void saveChanges() {
-        model.saveChanges();
+        appServices.dockService().saveChanges();
+    }
+
+    public void setAppServices(AppServices appServices) {
+        this.appServices = appServices;
     }
 }
