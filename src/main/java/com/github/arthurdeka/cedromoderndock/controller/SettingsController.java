@@ -26,7 +26,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.Slider;
 import javafx.scene.control.ToggleGroup;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -40,10 +40,12 @@ import java.util.function.Consumer;
 import static com.github.arthurdeka.cedromoderndock.util.UIUtils.setStageIcon;
 
 public class SettingsController {
+    private static final double LIST_VIEW_CELL_HEIGHT = 40;
+    private static final double LIST_VIEW_MAX_HEIGHT = 200;
 
     // Icons tab
     @FXML
-    private ListView listView;
+    private ListView<String> listView;
 
     @FXML
     private Button addProgramButton;
@@ -90,9 +92,9 @@ public class SettingsController {
     @FXML
     private Slider bottomSpacingSlider;
     @FXML
-    private AnchorPane staticPositioningPane;
+    private VBox staticPositioningPane;
     @FXML
-    private AnchorPane dynamicPositioningPane;
+    private VBox dynamicPositioningPane;
 
     // misc
     private AppServices appServices;
@@ -106,6 +108,7 @@ public class SettingsController {
         ToggleGroup positioningModeGroup = new ToggleGroup();
         staticPositioningRadio.setToggleGroup(positioningModeGroup);
         dynamicPositioningRadio.setToggleGroup(positioningModeGroup);
+        listView.setFixedCellSize(LIST_VIEW_CELL_HEIGHT);
     }
 
     public void handleInitialization() {
@@ -307,7 +310,18 @@ public class SettingsController {
 
         // list view will always follow ObservableList<String> listItems
         listView.setItems(listItems);
+        updateListViewHeight();
 
+    }
+
+    private void updateListViewHeight() {
+        int visibleRows = Math.max(1, listItems.size());
+        double contentHeight = visibleRows * listView.getFixedCellSize() + 2;
+        double boundedHeight = Math.min(contentHeight, LIST_VIEW_MAX_HEIGHT);
+
+        listView.setMinHeight(boundedHeight);
+        listView.setPrefHeight(boundedHeight);
+        listView.setMaxHeight(LIST_VIEW_MAX_HEIGHT);
     }
 
     // Icons tab

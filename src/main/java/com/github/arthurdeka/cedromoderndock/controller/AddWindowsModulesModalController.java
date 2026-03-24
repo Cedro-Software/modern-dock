@@ -76,6 +76,8 @@ public class AddWindowsModulesModalController {
             stage.setTitle("Settings Window");
             stage.setScene(new Scene(root));
             stage.show();
+            stage.setMinHeight(stage.getHeight());
+            stage.setMaxHeight(stage.getHeight());
 
             // Close the current window
             currentStage.close();

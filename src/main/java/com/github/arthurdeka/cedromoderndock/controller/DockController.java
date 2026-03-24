@@ -307,6 +307,8 @@ public class DockController {
             setStageIcon(stage);
             stage.setScene(new Scene(root));
             stage.show();
+            stage.setMinHeight(stage.getHeight());
+            stage.setMaxHeight(stage.getHeight());
 
         } catch (Exception e) {
             throw new RuntimeException(e);
