@@ -9,6 +9,7 @@ import com.github.arthurdeka.cedromoderndock.application.WindowPreviewService;
 import com.github.arthurdeka.cedromoderndock.controller.DockController;
 import com.github.arthurdeka.cedromoderndock.infrastructure.persistence.JsonDockRepository;
 import com.github.arthurdeka.cedromoderndock.infrastructure.system.CachedWindowsIconGateway;
+import com.github.arthurdeka.cedromoderndock.infrastructure.system.DefaultFolderLauncher;
 import com.github.arthurdeka.cedromoderndock.infrastructure.system.DefaultProgramLauncher;
 import com.github.arthurdeka.cedromoderndock.infrastructure.system.DefaultWindowsModuleLauncher;
 import com.github.arthurdeka.cedromoderndock.infrastructure.system.JnaWindowQueryGateway;
@@ -68,6 +69,7 @@ public class App extends Application {
         DockPositioningService positioningService = new DockPositioningService(dockService);
         DockItemActionService itemActionService = new DockItemActionService(
                 new DefaultProgramLauncher(),
+                new DefaultFolderLauncher(),
                 new DefaultWindowsModuleLauncher()
         );
         WindowPreviewService windowPreviewService = new WindowPreviewService(new JnaWindowQueryGateway());

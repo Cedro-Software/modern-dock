@@ -12,7 +12,17 @@ public class CachedWindowsIconGateway implements IconGateway {
     }
 
     @Override
+    public Path resolveFolderIcon(String folderPath) {
+        return WindowsIconHandler.getCachedFolderIconPath(folderPath);
+    }
+
+    @Override
     public void cacheProgramIcon(String executablePath) {
         WindowsIconHandler.extractAndCacheIcon(executablePath);
+    }
+
+    @Override
+    public void cacheFolderIcon(String folderPath) {
+        WindowsIconHandler.extractAndCacheFolderIcon(folderPath);
     }
 }

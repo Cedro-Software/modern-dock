@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 )
 @JsonSubTypes({
         @JsonSubTypes.Type(value = DockProgramItemModel.class, name = "programItem"),
+        @JsonSubTypes.Type(value = DockFolderItemModel.class, name = "folderItem"),
         @JsonSubTypes.Type(value = DockWindowsModuleItemModel.class, name = "windowsModuleItem"),
         @JsonSubTypes.Type(value = DockSettingsItemModel.class, name = "settingsItem")
 })

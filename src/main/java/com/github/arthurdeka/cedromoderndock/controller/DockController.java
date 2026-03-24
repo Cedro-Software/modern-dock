@@ -4,6 +4,7 @@ import com.github.arthurdeka.cedromoderndock.App;
 import com.github.arthurdeka.cedromoderndock.application.AppServices;
 import com.github.arthurdeka.cedromoderndock.application.DockTheme;
 import com.github.arthurdeka.cedromoderndock.model.DockItem;
+import com.github.arthurdeka.cedromoderndock.model.DockFolderItemModel;
 import com.github.arthurdeka.cedromoderndock.model.DockPositioningMode;
 import com.github.arthurdeka.cedromoderndock.model.DockProgramItemModel;
 import com.github.arthurdeka.cedromoderndock.model.DockSettingsItemModel;
@@ -201,6 +202,29 @@ public class DockController {
             // Show a window list preview when hovering this program icon.
             setupHoverPreview(button, (DockProgramItemModel) item, icon);
 
+            return button;
+        } else if (item instanceof DockFolderItemModel folderItem) {
+            Path iconPath = appServices.iconGateway().resolveFolderIcon(folderItem.getFolderPath());
+            if (iconPath == null || Files.notExists(iconPath)) {
+                appServices.iconGateway().cacheFolderIcon(folderItem.getFolderPath());
+                iconPath = appServices.iconGateway().resolveFolderIcon(folderItem.getFolderPath());
+            }
+
+            Image icon;
+            if (iconPath != null && Files.exists(iconPath)) {
+                icon = new Image(iconPath.toUri().toString());
+            } else {
+                icon = new Image(getClass().getResourceAsStream("/com/github/arthurdeka/cedromoderndock/icons/folder.png"));
+            }
+
+            ImageView imageView = new ImageView(icon);
+            imageView.setFitWidth(appServices.appearanceService().getIconsSize());
+            imageView.setFitHeight(appServices.appearanceService().getIconsSize());
+
+            Button button = new Button(item.getLabel());
+            button.getStyleClass().add("dock-button");
+            button.setGraphic(imageView);
+            button.setOnAction(e -> appServices.itemActionService().execute(item, this::openSettingsWindow));
             return button;
 
         } else {

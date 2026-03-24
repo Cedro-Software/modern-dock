@@ -2,7 +2,9 @@ package com.github.arthurdeka.cedromoderndock.util;
 
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
+import com.sun.jna.Structure;
 import com.sun.jna.platform.win32.GDI32;
+import com.sun.jna.platform.win32.Guid;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinDef.HBITMAP;
 import com.sun.jna.platform.win32.WinDef.HDC;
@@ -14,6 +16,7 @@ import com.sun.jna.win32.W32APIOptions;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -22,6 +25,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 /**
  * Extracts the icon from executables (.exe) and saves it to a persistent cache folder in AppData.
@@ -36,12 +40,39 @@ public final class WindowsIconHandler {
     private static final Path CACHE_DIR = getCacheDirectory();
     // Target extraction size to capture the highest-quality icon available.
     private static final int ICON_SIZE = 256;
+    private static final int SHGFI_ICON = 0x000000100;
+    private static final int SHGFI_SYSICONINDEX = 0x000004000;
+    private static final int FILE_ATTRIBUTE_DIRECTORY = 0x00000010;
+    private static final int SHIL_JUMBO = 0x4;
+    private static final int ILD_TRANSPARENT = 0x00000001;
 
     private interface User32Ex extends StdCallLibrary {
         User32Ex INSTANCE = Native.load("user32", User32Ex.class, W32APIOptions.DEFAULT_OPTIONS);
 
         int PrivateExtractIconsW(String szFileName, int nIconIndex, int cxIcon, int cyIcon,
                                  HICON[] phicon, int[] piconid, int nIcons, int flags);
+    }
+
+    private interface Shell32Ex extends StdCallLibrary {
+        Shell32Ex INSTANCE = Native.load("shell32", Shell32Ex.class, W32APIOptions.DEFAULT_OPTIONS);
+
+        long SHGetFileInfoW(String pszPath, int dwFileAttributes, SHFILEINFO psfi, int cbFileInfo, int uFlags);
+        int SHGetImageList(int iImageList, Guid.IID riid, com.sun.jna.ptr.PointerByReference ppv);
+    }
+
+    private interface Comctl32Ex extends StdCallLibrary {
+        Comctl32Ex INSTANCE = Native.load("comctl32", Comctl32Ex.class, W32APIOptions.DEFAULT_OPTIONS);
+
+        HICON ImageList_GetIcon(com.sun.jna.Pointer himl, int i, int flags);
+    }
+
+    @Structure.FieldOrder({"hIcon", "iIcon", "dwAttributes", "szDisplayName", "szTypeName"})
+    public static class SHFILEINFO extends Structure {
+        public HICON hIcon;
+        public int iIcon;
+        public int dwAttributes;
+        public char[] szDisplayName = new char[260];
+        public char[] szTypeName = new char[80];
     }
 
     /**
@@ -51,11 +82,19 @@ public final class WindowsIconHandler {
      * @return The path to the icon in the cache folder
      */
     public static Path getCachedIconPath(String exePath) {
+        return getCachedPath(exePath, "program");
+    }
+
+    public static Path getCachedFolderIconPath(String folderPath) {
+        return getCachedPath(folderPath, "folder_v3");
+    }
+
+    private static Path getCachedPath(String inputPath, String kind) {
         try {
-            String fileName = getHashedFileName(exePath) + ".png";
+            String fileName = kind + "_" + getHashedFileName(inputPath) + ".png";
             return CACHE_DIR.resolve(fileName);
         } catch (NoSuchAlgorithmException e) {
-            Logger.error("getCachedIconPath - Failed to generate hashed file name for " + exePath + e);
+            Logger.error("getCachedIconPath - Failed to generate hashed file name for " + inputPath + e);
             return null;
         }
     }
@@ -67,10 +106,46 @@ public final class WindowsIconHandler {
      * @return The path to the icon in the cache folder
      */
     public static Path extractAndCacheIcon(String exePath) {
+        return extractAndCacheProgramIcon(exePath);
+    }
+
+    public static Path extractAndCacheFolderIcon(String folderPath) {
         try {
-            // Generates a unique and deterministic filename based on the hash of the executable path
-            String fileName = getHashedFileName(exePath) + ".png";
-            Path cachedIconPath = CACHE_DIR.resolve(fileName);
+            Path cachedIconPath = getCachedFolderIconPath(folderPath);
+            if (cachedIconPath == null) {
+                return null;
+            }
+
+            if (Files.exists(cachedIconPath)) {
+                Logger.info("Icon for " + folderPath + " found in cache.");
+                return cachedIconPath;
+            }
+
+            File folder = new File(folderPath);
+            if (!folder.isDirectory()) {
+                Logger.error("Folder icon extraction failed because folder is invalid: " + folderPath);
+                return null;
+            }
+
+            BufferedImage image = extractFolderIconWithShellApi(folder);
+            if (image == null) {
+                return null;
+            }
+
+            ImageIO.write(image, "png", cachedIconPath.toFile());
+            return Files.exists(cachedIconPath) && Files.size(cachedIconPath) > 0 ? cachedIconPath : null;
+        } catch (IOException e) {
+            Logger.error("WindowsIconExtractor error on extractAndCacheFolderIcon: " + e.getMessage() + e);
+            return null;
+        }
+    }
+
+    private static Path extractAndCacheProgramIcon(String exePath) {
+        try {
+            Path cachedIconPath = getCachedIconPath(exePath);
+            if (cachedIconPath == null) {
+                return null;
+            }
 
             // If the icon already exists, return its path immediately.
             if (Files.exists(cachedIconPath)) {
@@ -87,9 +162,42 @@ public final class WindowsIconHandler {
             Logger.info("[extractAndCacheIcon] Icon for " + exePath + " successfully extracted and cached at iconsCache");
             return cachedIconPath; // Return the path of the newly saved icon.
 
-        } catch (IOException | NoSuchAlgorithmException e) {
+        } catch (IOException e) {
             Logger.error("WindowsIconExtractor error on extractAndCacheIcon: " + e.getMessage() + e);
             return null;
+        }
+    }
+
+    private static BufferedImage extractFolderIconWithShellApi(File folder) {
+        SHFILEINFO shFileInfo = new SHFILEINFO();
+        long result = Shell32Ex.INSTANCE.SHGetFileInfoW(
+                folder.getAbsolutePath(),
+                FILE_ATTRIBUTE_DIRECTORY,
+                shFileInfo,
+                shFileInfo.size(),
+                SHGFI_SYSICONINDEX
+        );
+
+        if (result == 0) {
+            return null;
+        }
+
+        com.sun.jna.ptr.PointerByReference imageListRef = new com.sun.jna.ptr.PointerByReference();
+        Guid.IID iImageListId = new Guid.IID("{46EB5926-582E-4017-9FDF-E8998DAA0950}");
+        int hr = Shell32Ex.INSTANCE.SHGetImageList(SHIL_JUMBO, iImageListId, imageListRef);
+        if (hr != 0 || imageListRef.getValue() == null) {
+            return null;
+        }
+
+        HICON hIcon = Comctl32Ex.INSTANCE.ImageList_GetIcon(imageListRef.getValue(), shFileInfo.iIcon, ILD_TRANSPARENT);
+        if (hIcon == null) {
+            return null;
+        }
+
+        try {
+            return iconToBufferedImage(hIcon);
+        } finally {
+            User32.INSTANCE.DestroyIcon(hIcon);
         }
     }
 

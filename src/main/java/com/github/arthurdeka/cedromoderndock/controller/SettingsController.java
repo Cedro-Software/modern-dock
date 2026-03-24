@@ -4,6 +4,7 @@ import com.github.arthurdeka.cedromoderndock.App;
 import com.github.arthurdeka.cedromoderndock.application.AppServices;
 import com.github.arthurdeka.cedromoderndock.model.DockHorizontalAnchor;
 import com.github.arthurdeka.cedromoderndock.model.DockItem;
+import com.github.arthurdeka.cedromoderndock.model.DockFolderItemModel;
 import com.github.arthurdeka.cedromoderndock.model.DockPositioningMode;
 import com.github.arthurdeka.cedromoderndock.model.DockProgramItemModel;
 import com.github.arthurdeka.cedromoderndock.model.DockSettingsItemModel;
@@ -28,6 +29,7 @@ import javafx.scene.control.Slider;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -383,6 +385,31 @@ public class SettingsController {
         addDockItemsToListView(appServices.dockService().getItems());
         dockRefreshAction.run();
 
+    }
+
+    @FXML
+    private void handleAddFolder() {
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        directoryChooser.setTitle("Choose folder");
+
+        Stage owner = (Stage) listView.getScene().getWindow();
+        File selectedFolder = directoryChooser.showDialog(owner);
+
+        if (selectedFolder == null || !selectedFolder.isDirectory()) {
+            return;
+        }
+
+        String folderPath = selectedFolder.getAbsolutePath();
+        String folderName = selectedFolder.getName();
+        String label = (folderName == null || folderName.isBlank()) ? folderPath : folderName;
+
+        appServices.iconGateway().cacheFolderIcon(folderPath);
+        DockItem newItem = new DockFolderItemModel(label, folderPath);
+        appServices.dockService().addItem(newItem);
+        Logger.info("[listView] Folder added: " + label);
+
+        addDockItemsToListView(appServices.dockService().getItems());
+        dockRefreshAction.run();
     }
 
     @FXML
