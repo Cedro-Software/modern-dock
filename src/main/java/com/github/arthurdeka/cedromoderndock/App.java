@@ -40,22 +40,22 @@ public class App extends Application {
         FXMLLoader loader = new FXMLLoader(App.class.getResource("fxml/DockView.fxml"));
         Scene scene = new Scene(loader.load());
 
+        // configuring dock stage.
+        dockStage.setTitle("Cedro Modern Dock");
+        setStageIcon(dockStage);
+        // defining the invisible window as the "owner" of the dock (this makes the dock invisible).
+        dockStage.initOwner(primaryStage);
+        dockStage.initStyle(StageStyle.TRANSPARENT);
+        scene.setFill(Color.TRANSPARENT);
+        dockStage.setScene(scene);
+
         DockController dockController = loader.getController();
         dockController.setStage(dockStage);
         dockController.setAppServices(appServices);
         dockController.handleInitialization();
 
-        // configuring dock stage.
-        dockStage.setTitle("Cedro Modern Dock");
-        setStageIcon(dockStage);
-        dockStage.setScene(scene);
-
-        // defining the invisible window as the "owner" of the dock (this makes the dock invisible).
-        dockStage.initOwner(primaryStage);
-        dockStage.initStyle(StageStyle.TRANSPARENT);
-
-        scene.setFill(Color.TRANSPARENT);
         dockStage.show();
+        appServices.positioningService().applyPosition(dockStage);
     }
 
     public static void main(String[] args) {
