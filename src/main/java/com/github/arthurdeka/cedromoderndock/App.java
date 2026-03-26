@@ -76,7 +76,7 @@ public class App extends Application {
         if (!singleInstanceGuard.tryAcquire()) {
             JOptionPane.showMessageDialog(
                     null,
-                    "There is already an instance of Cedro Modern Dock running.",
+                    "There is already an instance of Cedro Modern Dock running. Check your desktop",
                     "Cedro Modern Dock",
                     JOptionPane.WARNING_MESSAGE
             );

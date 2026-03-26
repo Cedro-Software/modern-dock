@@ -31,7 +31,7 @@ public class DockModel {
     private DockVerticalAnchor verticalAnchor = DockVerticalAnchor.TOP;
     @Getter
     @Setter
-    private DockHorizontalAnchor horizontalAnchor = DockHorizontalAnchor.LEFT;
+    private DockHorizontalAnchor horizontalAnchor = DockHorizontalAnchor.MIDDLE;
     @Getter
     @Setter
     private int topSpacing = 20;
