@@ -269,8 +269,8 @@
                               <VBox alignment="CENTER" spacing="10.0" styleClass="section-card meta-card">
                                  <children>
                                     <Label styleClass="section-title" text="Cedro Software Modern Dock" />
-                                    <Label styleClass="meta-value" text="Version fx1.0 - 07/2025" />
-                                    <Label styleClass="meta-value general-link" text="www.visual11themes.win" />
+                                    <Label styleClass="meta-value" text="Version fx1.1 - 03/2026" />
+                                    <Label styleClass="meta-value general-link" text="opensourceatlas.com" />
                                     <Label styleClass="meta-value general-link" text="Repository: github.com/arthurdeka/cedro-modern-dock" wrapText="true" />
                                     <Label styleClass="meta-value general-link" text="Contact: github.com/arthurdeka" />
                                     <Label styleClass="meta-value footer-note" text="Free and Open-Source Software" />
