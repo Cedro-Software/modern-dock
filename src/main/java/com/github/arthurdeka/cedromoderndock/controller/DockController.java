@@ -10,6 +10,7 @@ import com.github.arthurdeka.cedromoderndock.model.DockProgramItemModel;
 import com.github.arthurdeka.cedromoderndock.model.DockSettingsItemModel;
 import com.github.arthurdeka.cedromoderndock.model.DockWindowsModuleItemModel;
 import com.github.arthurdeka.cedromoderndock.util.Logger;
+import javafx.application.Platform;
 import javafx.animation.PauseTransition;
 import javafx.concurrent.Task;
 import javafx.util.Duration;
@@ -24,11 +25,19 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.geometry.Pos;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -55,6 +64,13 @@ public class DockController {
     private boolean isHoveringPopup = false;
     private Button currentHoverButton;
     private Button popupOwnerButton;
+    private final ExecutorService openStateExecutor = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "DockOpenStateWatcher");
+        t.setDaemon(true);
+        return t;
+    });
+    private final Map<String, List<Circle>> programIndicators = new HashMap<>();
+    private final Rectangle dockClip = new Rectangle();
     // Monotonic id to ignore stale async results from previous hover requests.
     private int hoverRequestId = 0;
 
@@ -64,6 +80,10 @@ public class DockController {
 
     // Run when FXML is loaded
     public void handleInitialization() {
+        dockClip.widthProperty().bind(hBoxContainer.widthProperty());
+        dockClip.heightProperty().bind(hBoxContainer.heightProperty());
+        hBoxContainer.setClip(dockClip);
+
         // Popup that lists open windows for a program icon on hover.
         windowPreviewPopup = new WindowPreviewPopup();
         windowPreviewPopup.getContainer().setOnMouseEntered(e -> {
@@ -86,6 +106,7 @@ public class DockController {
 
         enableDrag();
         updateDockUI();
+        startOpenStateWatcher();
     }
 
     // enables dock drag effect
@@ -136,6 +157,11 @@ public class DockController {
     public void updateDockUI() {
         var dock = appServices.dockService().getDock();
         hBoxContainer.getChildren().clear();
+        synchronized (programIndicators) {
+            programIndicators.clear();
+        }
+        dockClip.setArcWidth(dock.getDockBorderRounding() * 2.0);
+        dockClip.setArcHeight(dock.getDockBorderRounding() * 2.0);
         hBoxContainer.setSpacing(getDockIconsSpacing());
         hBoxContainer.setStyle("-fx-background-color: rgba(" + dock.getDockColorRGB() + " " + dock.getDockTransparency() + ");" + "-fx-background-radius: " + dock.getDockBorderRounding() + ";");
 
@@ -149,6 +175,7 @@ public class DockController {
         // resize DockView window to account for DockItem additions or removing
         stage.sizeToScene();
         appServices.positioningService().applyPosition(stage);
+        requestProgramIndicatorRefresh();
     }
 
     private Button createButton(DockItem item) {
@@ -176,9 +203,9 @@ public class DockController {
             button.setGraphic(imageView);
             button.setOnAction(e -> appServices.itemActionService().execute(item, this::openSettingsWindow));
             return button;
-        } else if (item instanceof DockProgramItemModel) {
+        } else if (item instanceof DockProgramItemModel programItem) {
             // Logic for DockProgramItemModel runs on a background thread.
-            Path iconPath = appServices.iconGateway().resolveProgramIcon(((DockProgramItemModel) item).getExecutablePath());
+            Path iconPath = appServices.iconGateway().resolveProgramIcon(programItem.getExecutablePath());
 
             // if file does not exist
             if (iconPath == null || Files.notExists(iconPath)) {
@@ -190,17 +217,22 @@ public class DockController {
             ImageView imageView = new ImageView(icon);
             imageView.setFitWidth(appServices.appearanceService().getIconsSize());
             imageView.setFitHeight(appServices.appearanceService().getIconsSize());
+            Circle runningIndicator = createRunningIndicator();
+            VBox graphic = createProgramGraphic(imageView, runningIndicator);
 
             Button button = new Button(item.getLabel());
             button.getStyleClass().add("dock-button");
-            imageView.setFitWidth(appServices.appearanceService().getIconsSize());
-            imageView.setFitHeight(appServices.appearanceService().getIconsSize());
-            button.setGraphic(imageView);
+            button.setGraphic(graphic);
+            synchronized (programIndicators) {
+                programIndicators
+                        .computeIfAbsent(programItem.getExecutablePath(), ignored -> new ArrayList<>())
+                        .add(runningIndicator);
+            }
 
             button.setOnAction(e -> appServices.itemActionService().execute(item, this::openSettingsWindow));
 
             // Show a window list preview when hovering this program icon.
-            setupHoverPreview(button, (DockProgramItemModel) item, icon);
+            setupHoverPreview(button, programItem, icon);
 
             return button;
         } else if (item instanceof DockFolderItemModel folderItem) {
@@ -229,6 +261,74 @@ public class DockController {
 
         } else {
             return null;
+        }
+    }
+
+    private VBox createProgramGraphic(ImageView imageView, Circle runningIndicator) {
+        VBox graphic = new VBox(4, imageView, runningIndicator);
+        graphic.setAlignment(Pos.CENTER);
+        return graphic;
+    }
+
+    private Circle createRunningIndicator() {
+        Circle runningIndicator = new Circle(1.5);
+        runningIndicator.setFill(Color.WHITE);
+        runningIndicator.setManaged(true);
+        runningIndicator.setOpacity(0);
+        runningIndicator.setMouseTransparent(true);
+        return runningIndicator;
+    }
+
+    private void startOpenStateWatcher() {
+        openStateExecutor.execute(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    refreshProgramIndicatorsInBackground();
+                    Thread.sleep(1200);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                } catch (Exception e) {
+                    Logger.error("Failed to refresh running program indicators: " + e.getMessage());
+                }
+            }
+        });
+    }
+
+    private void requestProgramIndicatorRefresh() {
+        openStateExecutor.execute(this::refreshProgramIndicatorsInBackground);
+    }
+
+    private void refreshProgramIndicatorsInBackground() {
+        Map<String, List<Circle>> indicatorSnapshot = snapshotProgramIndicators();
+        if (indicatorSnapshot.isEmpty()) {
+            return;
+        }
+
+        Map<String, Boolean> openStateByExecutable = new HashMap<>();
+        for (String executablePath : indicatorSnapshot.keySet()) {
+            openStateByExecutable.put(executablePath, appServices.windowPreviewService().hasOpenWindows(executablePath));
+        }
+
+        Platform.runLater(() -> applyProgramIndicatorState(indicatorSnapshot, openStateByExecutable));
+    }
+
+    private Map<String, List<Circle>> snapshotProgramIndicators() {
+        synchronized (programIndicators) {
+            Map<String, List<Circle>> snapshot = new HashMap<>();
+            for (Map.Entry<String, List<Circle>> entry : programIndicators.entrySet()) {
+                snapshot.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+            }
+            return snapshot;
+        }
+    }
+
+    private void applyProgramIndicatorState(Map<String, List<Circle>> indicatorSnapshot, Map<String, Boolean> openStateByExecutable) {
+        for (Map.Entry<String, Boolean> entry : openStateByExecutable.entrySet()) {
+            List<Circle> indicators = indicatorSnapshot.getOrDefault(entry.getKey(), List.of());
+            boolean isOpen = entry.getValue();
+            for (Circle indicator : indicators) {
+                indicator.setOpacity(isOpen ? 1 : 0);
+            }
         }
     }
 
@@ -379,6 +479,10 @@ public class DockController {
 
     public void setStage(Stage stage) {
         this.stage = stage;
+        this.stage.setOnHidden(event -> {
+            windowPreviewExecutor.shutdownNow();
+            openStateExecutor.shutdownNow();
+        });
     }
 
     public String getDockColorRGB() {

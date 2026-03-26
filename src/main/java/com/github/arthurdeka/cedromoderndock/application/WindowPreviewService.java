@@ -17,6 +17,10 @@ public class WindowPreviewService {
         return windowQueryGateway.findOpenWindows(item.getExecutablePath());
     }
 
+    public boolean hasOpenWindows(String executablePath) {
+        return !windowQueryGateway.findOpenWindows(executablePath).isEmpty();
+    }
+
     public void activate(NativeWindowUtils.WindowInfo windowInfo) {
         windowQueryGateway.activate(windowInfo);
     }
