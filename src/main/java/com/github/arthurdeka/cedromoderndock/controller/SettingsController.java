@@ -429,8 +429,14 @@ public class SettingsController {
     @FXML
     private void handleMoveItem(ActionEvent event) {
         int selectedIdx = listView.getSelectionModel().getSelectedIndex();
+        if (selectedIdx < 0) {
+            return;
+        }
 
         if (event.getSource() == moveItemUpButton) {
+            if (selectedIdx == 0) {
+                return;
+            }
             Logger.info("[listView] moving item up");
             Collections.swap(listItems, selectedIdx, selectedIdx - 1);
             appServices.dockService().swapItems(selectedIdx, selectedIdx - 1);
@@ -439,6 +445,9 @@ public class SettingsController {
             listView.getSelectionModel().select(selectedIdx - 1);
 
         } else {
+            if (selectedIdx >= listItems.size() - 1) {
+                return;
+            }
             Logger.info("[listView] moving item down");
             Collections.swap(listItems, selectedIdx, selectedIdx + 1);
             appServices.dockService().swapItems(selectedIdx, selectedIdx + 1);
@@ -449,6 +458,7 @@ public class SettingsController {
         }
 
         handleListViewItemSelection();
+        dockRefreshAction.run();
 
 
     }
