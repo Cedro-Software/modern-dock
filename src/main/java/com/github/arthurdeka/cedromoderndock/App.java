@@ -13,6 +13,7 @@ import com.github.arthurdeka.cedromoderndock.infrastructure.system.DefaultFolder
 import com.github.arthurdeka.cedromoderndock.infrastructure.system.DefaultProgramLauncher;
 import com.github.arthurdeka.cedromoderndock.infrastructure.system.DefaultWindowsModuleLauncher;
 import com.github.arthurdeka.cedromoderndock.infrastructure.system.JnaWindowQueryGateway;
+import com.github.arthurdeka.cedromoderndock.util.SingleInstanceGuard;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -20,11 +21,14 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import javax.swing.JOptionPane;
 import java.io.IOException;
 
 import static com.github.arthurdeka.cedromoderndock.util.UIUtils.setStageIcon;
 
 public class App extends Application {
+    private static SingleInstanceGuard singleInstanceGuard;
+
     @Override
     public void start(Stage primaryStage) throws IOException {
         AppServices appServices = createServices();
@@ -59,8 +63,34 @@ public class App extends Application {
         appServices.positioningService().applyPosition(dockStage);
     }
 
+    @Override
+    public void stop() {
+        if (singleInstanceGuard != null) {
+            singleInstanceGuard.close();
+            singleInstanceGuard = null;
+        }
+    }
+
     public static void main(String[] args) {
-        launch();
+        singleInstanceGuard = new SingleInstanceGuard();
+        if (!singleInstanceGuard.tryAcquire()) {
+            JOptionPane.showMessageDialog(
+                    null,
+                    "There is already an instance of Cedro Modern Dock running.",
+                    "Cedro Modern Dock",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        try {
+            launch();
+        } finally {
+            if (singleInstanceGuard != null) {
+                singleInstanceGuard.close();
+                singleInstanceGuard = null;
+            }
+        }
     }
 
     private AppServices createServices() {
