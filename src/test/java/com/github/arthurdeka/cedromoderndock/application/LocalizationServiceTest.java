@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class LocalizationServiceTest {
 
@@ -25,7 +26,7 @@ class LocalizationServiceTest {
 
         localizationService.setLanguage(SupportedLanguage.PT_BR);
 
-        assertEquals("Configuracoes", localizationService.dockItemLabel(new DockSettingsItemModel()));
+        assertEquals("Configurações", localizationService.dockItemLabel(new DockSettingsItemModel()));
         assertEquals("Painel de Controle", localizationService.dockItemLabel(new DockWindowsModuleItemModel("Control Panel", "ctrlpnl")));
         assertEquals("Discord", localizationService.dockItemLabel(new DockProgramItemModel("Discord", "C:\\Discord.exe")));
     }
@@ -52,6 +53,19 @@ class LocalizationServiceTest {
 
         assertEquals("English", localizationService.languageDisplayName(SupportedLanguage.EN_US));
         assertEquals("Portugu\u00EAs (Brasil)", localizationService.languageDisplayName(SupportedLanguage.PT_BR));
+    }
+
+    @Test
+    void everySupportedLanguageHasATranslationBundle() {
+        for (SupportedLanguage language : SupportedLanguage.values()) {
+            String windowTitle = LocalizationService.bootstrapText(language, "settings.window.title");
+            String moduleTitle = LocalizationService.bootstrapText(language, "windowsModule.modal.title");
+
+            assertFalse(windowTitle.isBlank(), "Missing settings.window.title for " + language);
+            assertFalse(moduleTitle.isBlank(), "Missing windowsModule.modal.title for " + language);
+            assertFalse("settings.window.title".equals(windowTitle), "Bundle fallback failed for " + language);
+            assertFalse("windowsModule.modal.title".equals(moduleTitle), "Bundle fallback failed for " + language);
+        }
     }
 
     private static final class InMemoryDockRepository implements DockRepository {
