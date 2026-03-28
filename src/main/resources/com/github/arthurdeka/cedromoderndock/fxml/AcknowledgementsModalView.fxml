@@ -4,20 +4,20 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox prefHeight="380.0" prefWidth="620.0" spacing="18.0" stylesheets="@../css/dockSettings.css" styleClass="window-root modal-root" xmlns="http://javafx.com/javafx/23.0.1">
+<VBox prefHeight="380.0" prefWidth="620.0" spacing="18.0" stylesheets="@../css/dockSettings.css" styleClass="window-root modal-root" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.github.arthurdeka.cedromoderndock.controller.AcknowledgementsModalController">
    <padding>
       <Insets bottom="22.0" left="22.0" right="22.0" top="22.0" />
    </padding>
    <children>
       <VBox spacing="4.0" styleClass="page-header">
          <children>
-            <Label styleClass="main-title modal-title" text="Acknowledgements" />
-            <Label styleClass="main-subtitle" text="Libraries and frameworks used by Cedro Modern Dock." wrapText="true" />
+            <Label fx:id="titleLabel" styleClass="main-title modal-title" text="Acknowledgements" />
+            <Label fx:id="subtitleLabel" styleClass="main-subtitle" text="Libraries and frameworks used by Cedro Modern Dock." wrapText="true" />
          </children>
       </VBox>
       <VBox spacing="12.0" styleClass="section-card">
          <children>
-            <Label styleClass="section-title" text="Libraries &amp; Frameworks" />
+            <Label fx:id="sectionTitleLabel" styleClass="section-title" text="Libraries &amp; Frameworks" />
             <Label styleClass="ack-item" text="JavaFX Controls - v 23.0.1" />
             <Label styleClass="ack-item" text="JavaFX FXML - v 23.0.1" />
             <Label styleClass="ack-item" text="JNA Java Native Access - v 5.13.0" />

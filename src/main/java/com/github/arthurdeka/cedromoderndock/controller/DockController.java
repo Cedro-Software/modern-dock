@@ -74,6 +74,7 @@ public class DockController {
     private final Rectangle dockClip = new Rectangle();
     // Monotonic id to ignore stale async results from previous hover requests.
     private int hoverRequestId = 0;
+    private final Runnable localizationListener = this::updateDockUI;
 
     // variables for the enableDrag function
     private double xOffset = 0;
@@ -81,6 +82,7 @@ public class DockController {
 
     // Run when FXML is loaded
     public void handleInitialization() {
+        appServices.localizationService().addListener(localizationListener);
         dockClip.widthProperty().bind(hBoxContainer.widthProperty());
         dockClip.heightProperty().bind(hBoxContainer.heightProperty());
         hBoxContainer.setClip(dockClip);
@@ -181,12 +183,13 @@ public class DockController {
     }
 
     private Button createButton(DockItem item) {
+        String buttonLabel = appServices.localizationService().dockItemLabel(item);
 
         if (item instanceof DockSettingsItemModel) {
             Image icon = loadDockResourceImage(item.getPath());
             ImageView imageView = createDockImageView(icon);
 
-            Button button = new Button(item.getLabel());
+            Button button = new Button(buttonLabel);
             button.getStyleClass().add("dock-button");
             button.setGraphic(imageView);
             button.setOnAction(e -> appServices.itemActionService().execute(item, this::openSettingsWindow));
@@ -196,7 +199,7 @@ public class DockController {
             Image icon = loadDockResourceImage(item.getPath());
             ImageView imageView = createDockImageView(icon);
 
-            Button button = new Button(item.getLabel());
+            Button button = new Button(buttonLabel);
             button.getStyleClass().add("dock-button");
             button.setGraphic(imageView);
             button.setOnAction(e -> appServices.itemActionService().execute(item, this::openSettingsWindow));
@@ -216,7 +219,7 @@ public class DockController {
             Circle runningIndicator = createRunningIndicator();
             VBox graphic = createProgramGraphic(imageView, runningIndicator);
 
-            Button button = new Button(item.getLabel());
+            Button button = new Button(buttonLabel);
             button.getStyleClass().add("dock-button");
             button.setGraphic(graphic);
             synchronized (programIndicators) {
@@ -247,7 +250,7 @@ public class DockController {
 
             ImageView imageView = createDockImageView(icon);
 
-            Button button = new Button(item.getLabel());
+            Button button = new Button(buttonLabel);
             button.getStyleClass().add("dock-button");
             button.setGraphic(imageView);
             button.setOnAction(e -> appServices.itemActionService().execute(item, this::openSettingsWindow));
@@ -459,7 +462,7 @@ public class DockController {
             settingsController.handleInitialization();
 
             Stage stage = new Stage();
-            stage.setTitle("Settings Window");
+            stage.setTitle(appServices.localizationService().text("settings.window.title"));
             setStageIcon(stage);
             stage.setScene(new Scene(root));
             stage.show();
@@ -512,6 +515,7 @@ public class DockController {
     public void setStage(Stage stage) {
         this.stage = stage;
         this.stage.setOnHidden(event -> {
+            appServices.localizationService().removeListener(localizationListener);
             windowPreviewExecutor.shutdownNow();
             openStateExecutor.shutdownNow();
         });

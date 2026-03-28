@@ -10,6 +10,7 @@ module com.github.arthurdeka.cedromoderndock {
     opens com.github.arthurdeka.cedromoderndock.controller to javafx.fxml;
     opens com.github.arthurdeka.cedromoderndock to javafx.fxml;
     opens com.github.arthurdeka.cedromoderndock.fxml to javafx.fxml;
+    opens com.github.arthurdeka.cedromoderndock.application to com.fasterxml.jackson.databind;
     opens com.github.arthurdeka.cedromoderndock.model to com.fasterxml.jackson.databind;
     opens com.github.arthurdeka.cedromoderndock.util to com.sun.jna;
 

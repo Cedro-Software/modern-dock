@@ -8,6 +8,7 @@ public record AppServices(
         DockPositioningService positioningService,
         DockItemActionService itemActionService,
         WindowPreviewService windowPreviewService,
-        IconGateway iconGateway
+        IconGateway iconGateway,
+        LocalizationService localizationService
 ) {
 }

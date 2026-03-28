@@ -5,6 +5,8 @@ import com.github.arthurdeka.cedromoderndock.application.DockAppearanceService;
 import com.github.arthurdeka.cedromoderndock.application.DockItemActionService;
 import com.github.arthurdeka.cedromoderndock.application.DockPositioningService;
 import com.github.arthurdeka.cedromoderndock.application.DockService;
+import com.github.arthurdeka.cedromoderndock.application.LocalizationService;
+import com.github.arthurdeka.cedromoderndock.application.SupportedLanguage;
 import com.github.arthurdeka.cedromoderndock.application.WindowPreviewService;
 import com.github.arthurdeka.cedromoderndock.controller.DockController;
 import com.github.arthurdeka.cedromoderndock.infrastructure.persistence.JsonDockRepository;
@@ -74,9 +76,10 @@ public class App extends Application {
     public static void main(String[] args) {
         singleInstanceGuard = new SingleInstanceGuard();
         if (!singleInstanceGuard.tryAcquire()) {
+            SupportedLanguage language = new JsonDockRepository().load().getLanguage();
             JOptionPane.showMessageDialog(
                     null,
-                    "There is already an instance of Cedro Modern Dock running. Check your desktop",
+                    LocalizationService.bootstrapText(language, "dialog.singleInstance.message"),
                     "Cedro Modern Dock",
                     JOptionPane.WARNING_MESSAGE
             );
@@ -97,6 +100,7 @@ public class App extends Application {
         DockService dockService = new DockService(new JsonDockRepository());
         DockAppearanceService appearanceService = new DockAppearanceService(dockService);
         DockPositioningService positioningService = new DockPositioningService(dockService);
+        LocalizationService localizationService = new LocalizationService(dockService);
         DockItemActionService itemActionService = new DockItemActionService(
                 new DefaultProgramLauncher(),
                 new DefaultFolderLauncher(),
@@ -110,7 +114,8 @@ public class App extends Application {
                 positioningService,
                 itemActionService,
                 windowPreviewService,
-                new CachedWindowsIconGateway()
+                new CachedWindowsIconGateway(),
+                localizationService
         );
     }
 }

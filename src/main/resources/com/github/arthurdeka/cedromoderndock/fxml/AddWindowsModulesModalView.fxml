@@ -13,14 +13,14 @@
    <children>
       <VBox spacing="4.0" styleClass="page-header">
          <children>
-            <Label styleClass="main-title modal-title" text="Add Windows Module" />
-            <Label styleClass="main-subtitle" text="Pick a native Windows destination to add to the dock." wrapText="true" />
+            <Label fx:id="titleLabel" styleClass="main-title modal-title" text="Add Windows Module" />
+            <Label fx:id="subtitleLabel" styleClass="main-subtitle" text="Pick a native Windows destination to add to the dock." wrapText="true" />
          </children>
       </VBox>
       <VBox spacing="14.0" styleClass="section-card" VBox.vgrow="ALWAYS">
          <children>
-            <Label styleClass="section-title" text="Available modules" />
-            <Label styleClass="section-helper" text="These entries create dock shortcuts for built-in Windows surfaces." wrapText="true" />
+            <Label fx:id="availableModulesTitleLabel" styleClass="section-title" text="Available modules" />
+            <Label fx:id="availableModulesHelperLabel" styleClass="section-helper" text="These entries create dock shortcuts for built-in Windows surfaces." wrapText="true" />
             <ListView fx:id="listView" VBox.vgrow="ALWAYS" />
          </children>
       </VBox>

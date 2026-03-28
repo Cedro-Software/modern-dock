@@ -1,4 +1,6 @@
 package com.github.arthurdeka.cedromoderndock.model;
+
+import com.github.arthurdeka.cedromoderndock.application.SupportedLanguage;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -44,6 +46,9 @@ public class DockModel {
     @Getter
     @Setter
     private int bottomSpacing = 20;
+    @Getter
+    @Setter
+    private SupportedLanguage language = SupportedLanguage.EN_US;
 
     public void addItem(DockItem item) {
         items.add(item);

@@ -1,5 +1,6 @@
 package com.github.arthurdeka.cedromoderndock.infrastructure.persistence;
 
+import com.github.arthurdeka.cedromoderndock.application.SupportedLanguage;
 import com.github.arthurdeka.cedromoderndock.model.DockFolderItemModel;
 import com.github.arthurdeka.cedromoderndock.model.DockItem;
 import com.github.arthurdeka.cedromoderndock.model.DockItemType;
@@ -35,5 +36,19 @@ class JsonDockRepositoryTest {
         assertEquals(DockItemType.FOLDER, folderItem.getType());
         assertEquals("Projects", folderItem.getLabel());
         assertEquals("C:\\Users\\Arthur Rodrigues\\Projects", folderItem.getFolderPath());
+    }
+
+    @Test
+    void savesAndLoadsSelectedLanguage() {
+        Path configPath = tempDir.resolve("config.json");
+        JsonDockRepository repository = new JsonDockRepository(configPath);
+
+        DockModel model = new DockModel();
+        model.setLanguage(SupportedLanguage.PT_BR);
+
+        repository.save(model);
+        DockModel loadedModel = repository.load();
+
+        assertEquals(SupportedLanguage.PT_BR, loadedModel.getLanguage());
     }
 }

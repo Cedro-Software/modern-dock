@@ -26,13 +26,19 @@
    <children>
       <VBox spacing="4.0" styleClass="page-header">
          <children>
-            <Label id="mainTitle" styleClass="main-title" text="Dock Settings" />
-            <Label styleClass="main-subtitle" text="Dark flat redesign with responsive layout, modern controls and tab-based organization." wrapText="true" />
+            <Label id="mainTitle" fx:id="mainTitleLabel" styleClass="main-title" text="Dock Settings" />
+            <Label fx:id="mainSubtitleLabel" styleClass="main-subtitle" text="Dark flat redesign with responsive layout, modern controls and tab-based organization." wrapText="true" />
          </children>
       </VBox>
-      <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+      <HBox alignment="CENTER_LEFT" spacing="12.0">
+         <children>
+            <Label fx:id="languageLabel" styleClass="field-label" text="Language" />
+            <ChoiceBox fx:id="languageChoiceBox" prefWidth="220.0" />
+         </children>
+      </HBox>
+      <TabPane fx:id="settingsTabPane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
          <tabs>
-            <Tab text="Icons">
+            <Tab fx:id="iconsTab" text="Icons">
                <content>
                   <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="tab-scroll-pane">
                      <content>
@@ -45,8 +51,8 @@
                                  <children>
                                     <VBox spacing="14.0" styleClass="section-card" HBox.hgrow="ALWAYS">
                                        <children>
-                                          <Label styleClass="section-title" text="Dock items" />
-                                          <Label styleClass="section-helper" text="Reorder the current icons and manage programs or Windows modules from one place." wrapText="true" />
+                                          <Label fx:id="dockItemsTitleLabel" styleClass="section-title" text="Dock items" />
+                                          <Label fx:id="dockItemsHelperLabel" styleClass="section-helper" text="Reorder the current icons and manage programs or Windows modules from one place." wrapText="true" />
                                           <ListView fx:id="listView" maxHeight="200.0" />
                                           <HBox spacing="12.0">
                                              <children>
@@ -58,11 +64,11 @@
                                     </VBox>
                                     <VBox minWidth="270.0" prefWidth="290.0" spacing="12.0" styleClass="section-card action-panel">
                                        <children>
-                                          <Label styleClass="section-title" text="Actions" />
-                                          <Label styleClass="section-helper" text="Add custom executables, include native Windows modules or remove the selected item." wrapText="true" />
+                                          <Label fx:id="actionsTitleLabel" styleClass="section-title" text="Actions" />
+                                          <Label fx:id="actionsHelperLabel" styleClass="section-helper" text="Add custom executables, include native Windows modules or remove the selected item." wrapText="true" />
                                           <Button fx:id="addProgramButton" maxWidth="Infinity" mnemonicParsing="false" onAction="#handleAddProgram" text="Add Program" />
-                                          <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#handleAddFolder" text="Add Folder" />
-                                          <Button maxWidth="Infinity" mnemonicParsing="false" onAction="#openAddWindowsModuleWindow" styleClass="secondary-button" text="Add Windows Module" />
+                                          <Button fx:id="addFolderButton" maxWidth="Infinity" mnemonicParsing="false" onAction="#handleAddFolder" text="Add Folder" />
+                                          <Button fx:id="addWindowsModuleButton" maxWidth="Infinity" mnemonicParsing="false" onAction="#openAddWindowsModuleWindow" styleClass="secondary-button" text="Add Windows Module" />
                                           <Region VBox.vgrow="ALWAYS" />
                                           <Button fx:id="removeProgramButton" disable="true" maxWidth="Infinity" mnemonicParsing="false" onAction="#handleRemoveProgram" styleClass="secondary-button" text="Remove Selected Item" />
                                        </children>
@@ -75,7 +81,7 @@
                   </ScrollPane>
                </content>
             </Tab>
-            <Tab text="Icons Customization">
+            <Tab fx:id="iconsCustomizationTab" text="Icons Customization">
                <content>
                   <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="tab-scroll-pane">
                      <content>
@@ -86,15 +92,15 @@
                            <children>
                               <VBox spacing="14.0" styleClass="section-card">
                                  <children>
-                                    <Label styleClass="section-title" text="Icons Size" />
-                                    <Label styleClass="section-helper" text="Adjust the visual prominence of each icon while preserving a clean, flat dock silhouette." wrapText="true" />
+                                    <Label fx:id="iconsSizeTitleLabel" styleClass="section-title" text="Icons Size" />
+                                    <Label fx:id="iconsSizeHelperLabel" styleClass="section-helper" text="Adjust the visual prominence of each icon while preserving a clean, flat dock silhouette." wrapText="true" />
                                     <Slider fx:id="iconSizeSlider" majorTickUnit="5.0" max="60.0" min="15.0" showTickLabels="true" showTickMarks="true" />
                                  </children>
                               </VBox>
                               <VBox spacing="14.0" styleClass="section-card">
                                  <children>
-                                    <Label styleClass="section-title" text="Spacing Between Icons" />
-                                    <Label styleClass="section-helper" text="Control how compact or airy the dock feels without disrupting the item order." wrapText="true" />
+                                    <Label fx:id="spacingTitleLabel" styleClass="section-title" text="Spacing Between Icons" />
+                                    <Label fx:id="spacingHelperLabel" styleClass="section-helper" text="Control how compact or airy the dock feels without disrupting the item order." wrapText="true" />
                                     <Slider fx:id="spacingBetweenIconsSlider" majorTickUnit="5.0" max="30.0" showTickLabels="true" showTickMarks="true" />
                                  </children>
                               </VBox>
@@ -104,7 +110,7 @@
                   </ScrollPane>
                </content>
             </Tab>
-            <Tab text="Dock Customization">
+            <Tab fx:id="dockCustomizationTab" text="Dock Customization">
                <content>
                   <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="tab-scroll-pane">
                      <content>
@@ -115,15 +121,15 @@
                            <children>
                               <VBox spacing="14.0" styleClass="section-card">
                                  <children>
-                                    <Label styleClass="section-title" text="Dock Transparency" />
-                                    <Label styleClass="section-helper" text="Balance presence and subtlety for the dock surface against the desktop background." wrapText="true" />
+                                    <Label fx:id="transparencyTitleLabel" styleClass="section-title" text="Dock Transparency" />
+                                    <Label fx:id="transparencyHelperLabel" styleClass="section-helper" text="Balance presence and subtlety for the dock surface against the desktop background." wrapText="true" />
                                     <Slider fx:id="dockTransparencySlider" majorTickUnit="10.0" minorTickCount="1" showTickLabels="true" showTickMarks="true" />
                                  </children>
                               </VBox>
                               <VBox spacing="14.0" styleClass="section-card">
                                  <children>
-                                    <Label styleClass="section-title" text="Border Rounding" />
-                                    <Label styleClass="section-helper" text="Keep the shell sharp and modern or soften the corners slightly while staying within the flat style." wrapText="true" />
+                                    <Label fx:id="roundingTitleLabel" styleClass="section-title" text="Border Rounding" />
+                                    <Label fx:id="roundingHelperLabel" styleClass="section-helper" text="Keep the shell sharp and modern or soften the corners slightly while staying within the flat style." wrapText="true" />
                                     <Slider fx:id="dockBorderRoundingSlider" majorTickUnit="10.0" max="30.0" minorTickCount="1" showTickLabels="true" showTickMarks="true" />
                                  </children>
                               </VBox>
@@ -131,8 +137,8 @@
                                  <children>
                                     <VBox spacing="6.0" HBox.hgrow="ALWAYS">
                                        <children>
-                                          <Label styleClass="section-title" text="Dock Background Color" />
-                                          <Label styleClass="section-helper" text="Choose the base tone that sits beneath the dock icons." wrapText="true" />
+                                          <Label fx:id="backgroundColorTitleLabel" styleClass="section-title" text="Dock Background Color" />
+                                          <Label fx:id="backgroundColorHelperLabel" styleClass="section-helper" text="Choose the base tone that sits beneath the dock icons." wrapText="true" />
                                        </children>
                                     </VBox>
                                     <ColorPicker id="dockColorPicker" fx:id="dockColorPicker" onAction="#handleSetDockColor" prefWidth="170.0" styleClass="color-picker" />
@@ -144,7 +150,7 @@
                   </ScrollPane>
                </content>
             </Tab>
-            <Tab text="Dock Positioning">
+            <Tab fx:id="dockPositioningTab" text="Dock Positioning">
                <content>
                   <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="tab-scroll-pane">
                      <content>
@@ -155,8 +161,8 @@
                            <children>
                               <VBox spacing="14.0" styleClass="section-card">
                                  <children>
-                                    <Label styleClass="section-title" text="Positioning Mode" />
-                                    <Label styleClass="section-helper" text="Choose between a fixed screen anchor or a freely draggable dock." wrapText="true" />
+                                    <Label fx:id="positioningModeTitleLabel" styleClass="section-title" text="Positioning Mode" />
+                                    <Label fx:id="positioningModeHelperLabel" styleClass="section-helper" text="Choose between a fixed screen anchor or a freely draggable dock." wrapText="true" />
                                     <HBox spacing="22.0">
                                        <children>
                                           <RadioButton fx:id="staticPositioningRadio" mnemonicParsing="false" onAction="#handlePositioningModeChange" styleClass="positioning-radio" text="Static positioning" />
@@ -169,18 +175,18 @@
                                  <children>
                                     <VBox spacing="16.0" styleClass="section-card">
                                        <children>
-                                          <Label styleClass="section-title" text="Alignment" />
+                                          <Label fx:id="alignmentTitleLabel" styleClass="section-title" text="Alignment" />
                                           <GridPane hgap="18.0" vgap="14.0">
                                              <children>
                                                 <VBox spacing="8.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
                                                    <children>
-                                                      <Label styleClass="field-label" text="Vertical" />
+                                                      <Label fx:id="verticalLabel" styleClass="field-label" text="Vertical" />
                                                       <ChoiceBox fx:id="verticalPositionChoiceBox" maxWidth="Infinity" />
                                                    </children>
                                                 </VBox>
                                                 <VBox spacing="8.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
                                                    <children>
-                                                      <Label styleClass="field-label" text="Horizontal" />
+                                                      <Label fx:id="horizontalLabel" styleClass="field-label" text="Horizontal" />
                                                       <ChoiceBox fx:id="horizontalPositionChoiceBox" maxWidth="Infinity" />
                                                    </children>
                                                 </VBox>
@@ -190,30 +196,30 @@
                                     </VBox>
                                     <VBox spacing="16.0" styleClass="section-card">
                                        <children>
-                                          <Label styleClass="section-title" text="Screen Spacing" />
+                                          <Label fx:id="screenSpacingTitleLabel" styleClass="section-title" text="Screen Spacing" />
                                           <GridPane hgap="18.0" vgap="16.0">
                                              <children>
                                                 <VBox spacing="8.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
                                                    <children>
-                                                      <Label styleClass="field-label" text="Top" />
+                                                      <Label fx:id="topSpacingLabel" styleClass="field-label" text="Top" />
                                                       <Slider fx:id="topSpacingSlider" majorTickUnit="10.0" max="100.0" showTickLabels="true" showTickMarks="true" value="20.0" />
                                                    </children>
                                                 </VBox>
                                                 <VBox spacing="8.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
                                                    <children>
-                                                      <Label styleClass="field-label" text="Left" />
+                                                      <Label fx:id="leftSpacingLabel" styleClass="field-label" text="Left" />
                                                       <Slider fx:id="leftSpacingSlider" majorTickUnit="10.0" max="100.0" showTickLabels="true" showTickMarks="true" value="20.0" />
                                                    </children>
                                                 </VBox>
                                                 <VBox spacing="8.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
                                                    <children>
-                                                      <Label styleClass="field-label" text="Right" />
+                                                      <Label fx:id="rightSpacingLabel" styleClass="field-label" text="Right" />
                                                       <Slider fx:id="rightSpacingSlider" majorTickUnit="10.0" max="100.0" showTickLabels="true" showTickMarks="true" value="20.0" />
                                                    </children>
                                                 </VBox>
                                                 <VBox spacing="8.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                                    <children>
-                                                      <Label styleClass="field-label" text="Down" />
+                                                      <Label fx:id="bottomSpacingLabel" styleClass="field-label" text="Down" />
                                                       <Slider fx:id="bottomSpacingSlider" majorTickUnit="10.0" max="100.0" showTickLabels="true" showTickMarks="true" value="20.0" />
                                                    </children>
                                                 </VBox>
@@ -227,8 +233,8 @@
                                  <children>
                                     <VBox spacing="14.0" styleClass="section-card hero-card">
                                        <children>
-                                          <Label styleClass="section-title" text="Dynamic Positioning" />
-                                          <Label styleClass="section-helper" text="Drag the dock freely on the screen to place it wherever you want." wrapText="true" />
+                                          <Label fx:id="dynamicPositioningTitleLabel" styleClass="section-title" text="Dynamic Positioning" />
+                                          <Label fx:id="dynamicPositioningHelperLabel" styleClass="section-helper" text="Drag the dock freely on the screen to place it wherever you want." wrapText="true" />
                                           <StackPane styleClass="hero-image-wrap">
                                              <children>
                                                 <ImageView fitHeight="200.0" fitWidth="360.0" pickOnBounds="true" preserveRatio="true">
@@ -248,7 +254,7 @@
                   </ScrollPane>
                </content>
             </Tab>
-            <Tab text="General">
+            <Tab fx:id="generalTab" text="General">
                <content>
                   <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="tab-scroll-pane">
                      <content>
@@ -269,14 +275,14 @@
                               <VBox alignment="CENTER" spacing="10.0" styleClass="section-card meta-card">
                                  <children>
                                     <Label styleClass="section-title" text="Cedro Software Modern Dock" />
-                                    <Label styleClass="meta-value" text="Version fx1.1 - 03/2026" />
+                                    <Label fx:id="versionLabel" styleClass="meta-value" text="Version fx1.1 - 03/2026" />
                                     <Label styleClass="meta-value general-link" text="opensourceatlas.com" />
-                                    <Label styleClass="meta-value general-link" text="Repository: github.com/arthurdeka/cedro-modern-dock" wrapText="true" />
-                                    <Label styleClass="meta-value general-link" text="Contact: github.com/arthurdeka" />
-                                    <Label styleClass="meta-value footer-note" text="Free and Open-Source Software" />
+                                    <Label fx:id="repositoryLabel" styleClass="meta-value general-link" text="Repository: github.com/arthurdeka/cedro-modern-dock" wrapText="true" />
+                                    <Label fx:id="contactLabel" styleClass="meta-value general-link" text="Contact: github.com/arthurdeka" />
+                                    <Label fx:id="openSourceLabel" styleClass="meta-value footer-note" text="Free and Open-Source Software" />
                                  </children>
                               </VBox>
-                              <Button fx:id="addProgramButton1" mnemonicParsing="false" onAction="#openAknowledgementsWindow" styleClass="secondary-button" text="Acknowledgements" />
+                              <Button fx:id="acknowledgementsButton" mnemonicParsing="false" onAction="#openAknowledgementsWindow" styleClass="secondary-button" text="Acknowledgements" />
                            </children>
                         </VBox>
                      </content>
