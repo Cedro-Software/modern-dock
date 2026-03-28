@@ -17,6 +17,7 @@ import com.github.arthurdeka.cedromoderndock.infrastructure.system.DefaultWindow
 import com.github.arthurdeka.cedromoderndock.infrastructure.system.JnaWindowQueryGateway;
 import com.github.arthurdeka.cedromoderndock.util.SingleInstanceGuard;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
@@ -60,6 +61,19 @@ public class App extends Application {
         dockController.setStage(dockStage);
         dockController.setAppServices(appServices);
         dockController.handleInitialization();
+
+        dockStage.iconifiedProperty().addListener((observable, wasIconified, isIconified) -> {
+            if (!isIconified) {
+                return;
+            }
+
+            Platform.runLater(() -> {
+                dockStage.setIconified(false);
+                if (!dockStage.isShowing()) {
+                    dockStage.show();
+                }
+            });
+        });
 
         dockStage.show();
         appServices.positioningService().applyPosition(dockStage);
