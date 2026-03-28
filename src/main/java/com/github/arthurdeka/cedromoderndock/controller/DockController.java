@@ -41,7 +41,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static com.github.arthurdeka.cedromoderndock.util.UIUtils.setStageIcon;
+import com.github.arthurdeka.cedromoderndock.util.SettingsWindowLauncher;
 
 public class DockController {
     private static final double HOVER_SCALE = 1.3;
@@ -451,28 +451,11 @@ public class DockController {
     }
 
     private void openSettingsWindow() {
-        try {
-            FXMLLoader loader = new FXMLLoader(App.class.getResource("fxml/DockSettingsView.fxml"));
-            Parent root = loader.load();
-
-            SettingsController settingsController = loader.getController();
-            settingsController.setAppServices(appServices);
-            settingsController.setDockRefreshAction(this::updateDockUI);
-            settingsController.setPositioningModeChangeAction(this::handlePositioningModeChange);
-            settingsController.handleInitialization();
-
-            Stage stage = new Stage();
-            stage.setTitle(appServices.localizationService().text("settings.window.title"));
-            setStageIcon(stage);
-            stage.setScene(new Scene(root));
-            stage.show();
-            stage.setMinHeight(stage.getHeight());
-            stage.setMaxHeight(stage.getHeight());
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
+        SettingsWindowLauncher.open(
+                appServices,
+                this::updateDockUI,
+                this::handlePositioningModeChange
+        );
     }
 
     public void setDockIconsSize(int iconsSize) {

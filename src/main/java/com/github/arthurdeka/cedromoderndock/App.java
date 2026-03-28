@@ -15,7 +15,10 @@ import com.github.arthurdeka.cedromoderndock.infrastructure.system.DefaultFolder
 import com.github.arthurdeka.cedromoderndock.infrastructure.system.DefaultProgramLauncher;
 import com.github.arthurdeka.cedromoderndock.infrastructure.system.DefaultWindowsModuleLauncher;
 import com.github.arthurdeka.cedromoderndock.infrastructure.system.JnaWindowQueryGateway;
+import com.github.arthurdeka.cedromoderndock.model.DockPositioningMode;
+import com.github.arthurdeka.cedromoderndock.util.SettingsWindowLauncher;
 import com.github.arthurdeka.cedromoderndock.util.SingleInstanceGuard;
+import com.github.arthurdeka.cedromoderndock.util.SystemTrayManager;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -31,6 +34,7 @@ import static com.github.arthurdeka.cedromoderndock.util.UIUtils.setStageIcon;
 
 public class App extends Application {
     private static SingleInstanceGuard singleInstanceGuard;
+    private SystemTrayManager systemTrayManager;
 
     @Override
     public void start(Stage primaryStage) throws IOException {
@@ -75,12 +79,22 @@ public class App extends Application {
             });
         });
 
+        Platform.setImplicitExit(false);
         dockStage.show();
         appServices.positioningService().applyPosition(dockStage);
+        systemTrayManager = new SystemTrayManager(
+                () -> openSettingsWindow(appServices, dockController, dockStage),
+                Platform::exit
+        );
+        systemTrayManager.install();
     }
 
     @Override
     public void stop() {
+        if (systemTrayManager != null) {
+            systemTrayManager.dispose();
+            systemTrayManager = null;
+        }
         if (singleInstanceGuard != null) {
             singleInstanceGuard.close();
             singleInstanceGuard = null;
@@ -131,5 +145,25 @@ public class App extends Application {
                 new CachedWindowsIconGateway(),
                 localizationService
         );
+    }
+
+    private void openSettingsWindow(AppServices appServices, DockController dockController, Stage dockStage) {
+        SettingsWindowLauncher.open(
+                appServices,
+                dockController::updateDockUI,
+                positioningMode -> handlePositioningModeChange(appServices, dockStage, positioningMode)
+        );
+    }
+
+    private void handlePositioningModeChange(
+            AppServices appServices,
+            Stage dockStage,
+            DockPositioningMode positioningMode
+    ) {
+        DockPositioningMode currentMode = appServices.positioningService().getPositioningMode();
+        if (currentMode == DockPositioningMode.STATIC && positioningMode == DockPositioningMode.DYNAMIC) {
+            appServices.dockService().setDockPosition(dockStage.getX(), dockStage.getY());
+        }
+        appServices.positioningService().setPositioningMode(positioningMode);
     }
 }
