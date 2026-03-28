@@ -2,6 +2,7 @@ package com.github.arthurdeka.cedromoderndock.controller;
 
 import com.github.arthurdeka.cedromoderndock.App;
 import com.github.arthurdeka.cedromoderndock.application.AppServices;
+import com.github.arthurdeka.cedromoderndock.application.ProgramSelectionResolver;
 import com.github.arthurdeka.cedromoderndock.model.DockHorizontalAnchor;
 import com.github.arthurdeka.cedromoderndock.model.DockItem;
 import com.github.arthurdeka.cedromoderndock.model.DockFolderItemModel;
@@ -34,6 +35,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
@@ -368,9 +370,10 @@ public class SettingsController {
         File file = fileChooser.showOpenDialog(null);
 
         if (file != null) {
-            // obs: the .exe file path will be used to extract the icon path as well.
-            String selectedExePath = file.getAbsolutePath();
-            String selectedExeName = Paths.get(file.getAbsolutePath()).getFileName().toString().replace(".exe", "");
+            ProgramSelectionResolver.ResolvedProgramSelection selection =
+                    ProgramSelectionResolver.resolve(Path.of(file.getAbsolutePath()));
+            String selectedExePath = selection.executablePath();
+            String selectedExeName = selection.label();
 
             //extracting icon
             appServices.iconGateway().cacheProgramIcon(selectedExePath);
