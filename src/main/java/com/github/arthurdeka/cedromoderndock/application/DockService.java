@@ -39,7 +39,10 @@ public class DockService {
     }
 
     public void setDockPosition(double positionX, double positionY) {
-        dock.setDockPosition(positionX, positionY);
+        dock.setDockPosition(
+                DockPositioningService.snapToPixel(positionX),
+                DockPositioningService.snapToPixel(positionY)
+        );
         saveChanges();
     }
 

@@ -44,6 +44,7 @@ import java.util.concurrent.Executors;
 import static com.github.arthurdeka.cedromoderndock.util.UIUtils.setStageIcon;
 
 public class DockController {
+    private static final double HOVER_SCALE = 1.3;
 
     @FXML
     private AnchorPane rootPane;
@@ -133,6 +134,7 @@ public class DockController {
                 return;
             }
             appServices.dockService().setDockPosition(stage.getX(), stage.getY());
+            appServices.positioningService().applyPosition(stage);
         });
     }
 
@@ -181,10 +183,8 @@ public class DockController {
     private Button createButton(DockItem item) {
 
         if (item instanceof DockSettingsItemModel) {
-            Image icon = new Image(getClass().getResourceAsStream(item.getPath()));
-            ImageView imageView = new ImageView(icon);
-            imageView.setFitWidth(appServices.appearanceService().getIconsSize());
-            imageView.setFitHeight(appServices.appearanceService().getIconsSize());
+            Image icon = loadDockResourceImage(item.getPath());
+            ImageView imageView = createDockImageView(icon);
 
             Button button = new Button(item.getLabel());
             button.getStyleClass().add("dock-button");
@@ -193,10 +193,8 @@ public class DockController {
             return button;
 
         } else if (item instanceof DockWindowsModuleItemModel) {
-            Image icon = new Image(getClass().getResourceAsStream(item.getPath()));
-            ImageView imageView = new ImageView(icon);
-            imageView.setFitWidth(appServices.appearanceService().getIconsSize());
-            imageView.setFitHeight(appServices.appearanceService().getIconsSize());
+            Image icon = loadDockResourceImage(item.getPath());
+            ImageView imageView = createDockImageView(icon);
 
             Button button = new Button(item.getLabel());
             button.getStyleClass().add("dock-button");
@@ -213,10 +211,8 @@ public class DockController {
                 return null;
             }
 
-            Image icon = new Image(iconPath.toUri().toString());
-            ImageView imageView = new ImageView(icon);
-            imageView.setFitWidth(appServices.appearanceService().getIconsSize());
-            imageView.setFitHeight(appServices.appearanceService().getIconsSize());
+            Image icon = loadDockFileImage(iconPath);
+            ImageView imageView = createDockImageView(icon);
             Circle runningIndicator = createRunningIndicator();
             VBox graphic = createProgramGraphic(imageView, runningIndicator);
 
@@ -244,14 +240,12 @@ public class DockController {
 
             Image icon;
             if (iconPath != null && Files.exists(iconPath)) {
-                icon = new Image(iconPath.toUri().toString());
+                icon = loadDockFileImage(iconPath);
             } else {
-                icon = new Image(getClass().getResourceAsStream("/com/github/arthurdeka/cedromoderndock/icons/folder.png"));
+                icon = loadDockResourceImage("/com/github/arthurdeka/cedromoderndock/icons/folder.png");
             }
 
-            ImageView imageView = new ImageView(icon);
-            imageView.setFitWidth(appServices.appearanceService().getIconsSize());
-            imageView.setFitHeight(appServices.appearanceService().getIconsSize());
+            ImageView imageView = createDockImageView(icon);
 
             Button button = new Button(item.getLabel());
             button.getStyleClass().add("dock-button");
@@ -268,6 +262,44 @@ public class DockController {
         VBox graphic = new VBox(4, imageView, runningIndicator);
         graphic.setAlignment(Pos.CENTER);
         return graphic;
+    }
+
+    private Image loadDockResourceImage(String resourcePath) {
+        return new Image(
+                App.class.getResource(resourcePath).toExternalForm(),
+                getRequestedIconSize(),
+                getRequestedIconSize(),
+                true,
+                true,
+                false
+        );
+    }
+
+    private Image loadDockFileImage(Path iconPath) {
+        return new Image(
+                iconPath.toUri().toString(),
+                getRequestedIconSize(),
+                getRequestedIconSize(),
+                true,
+                true,
+                false
+        );
+    }
+
+    private ImageView createDockImageView(Image icon) {
+        ImageView imageView = new ImageView(icon);
+        imageView.setFitWidth(appServices.appearanceService().getIconsSize());
+        imageView.setFitHeight(appServices.appearanceService().getIconsSize());
+        imageView.setPreserveRatio(true);
+        imageView.setSmooth(true);
+        return imageView;
+    }
+
+    private int getRequestedIconSize() {
+        return Math.max(
+                appServices.appearanceService().getIconsSize(),
+                (int) Math.ceil(appServices.appearanceService().getIconsSize() * HOVER_SCALE)
+        );
     }
 
     private Circle createRunningIndicator() {

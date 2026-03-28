@@ -100,8 +100,8 @@ public class DockPositioningService {
 
         DockModel dock = dockService.getDock();
         if (dock.getPositioningMode() == DockPositioningMode.DYNAMIC) {
-            stage.setX(dock.getDockPositionX());
-            stage.setY(dock.getDockPositionY());
+            stage.setX(snapToPixel(dock.getDockPositionX()));
+            stage.setY(snapToPixel(dock.getDockPositionY()));
             return;
         }
 
@@ -109,8 +109,12 @@ public class DockPositioningService {
         double stageWidth = stage.getWidth();
         double stageHeight = stage.getHeight();
 
-        stage.setX(resolveHorizontalPosition(bounds, stageWidth, dock));
-        stage.setY(resolveVerticalPosition(bounds, stageHeight, dock));
+        stage.setX(snapToPixel(resolveHorizontalPosition(bounds, stageWidth, dock)));
+        stage.setY(snapToPixel(resolveVerticalPosition(bounds, stageHeight, dock)));
+    }
+
+    static double snapToPixel(double value) {
+        return Math.round(value);
     }
 
     private double resolveHorizontalPosition(
