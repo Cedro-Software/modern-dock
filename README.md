@@ -7,6 +7,10 @@
 
 
 <img width="769" height="163" alt="img1" src="https://github.com/user-attachments/assets/3a7cf5f1-a203-4d7b-aa9f-6e0904031eb5" />
+<img width="785" height="270" alt="img3" src="https://github.com/user-attachments/assets/bad89414-dc02-448e-8bef-80b3915ea54a" />
+
+
+> Follow @TeiuAlligator on X to stay tuned for new features and updates!
 
 
 > ## How To Install
