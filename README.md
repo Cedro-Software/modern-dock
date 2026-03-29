@@ -6,7 +6,8 @@
 ![X (formerly Twitter) Follow](https://img.shields.io/twitter/follow/TeiuAlligator?style=for-the-badge)
 
 
-![modern-dock-banner1](https://github.com/user-attachments/assets/77157afc-4db1-400b-8141-3e5bfb2ee7a9)
+<img width="769" height="163" alt="img1" src="https://github.com/user-attachments/assets/3a7cf5f1-a203-4d7b-aa9f-6e0904031eb5" />
+
 
 > ## How To Install
 > 1. Go to [Releases](https://github.com/arthurdeka/cedro-modern-dock/releases):
@@ -28,7 +29,7 @@
 
 ## Supported Languages
 
-- 🇺🇸 English
+- 🇺🇸  English
 - 🇧🇷 Portuguese (Brazil)
 - 🇪🇸 Spanish
 - 🇫🇷 French
@@ -51,8 +52,6 @@
 - 🇻🇳 Vietnamese
 <br>
 
-![settings](https://github.com/user-attachments/assets/c62a8aaa-fa07-4a71-86bd-afdc5b2b627a)
-
 <!-- BUILT WITH -->
 ## Built With
 
@@ -61,8 +60,8 @@
 
 <!-- GETTING STARTED -->
 ## How To Contribute
-
-## Understand the project architecture:
+> Only for those who wish to contribute in the project's coding, none of this is required for you to do if you [just want to download it](https://github.com/arthurdeka/cedro-modern-dock/releases)
+### Understand the project architecture:
 
 The project now follows a lightweight layered architecture:
 
@@ -76,9 +75,9 @@ The project now follows a lightweight layered architecture:
 `App.java` is responsible for composing these dependencies and injecting them into the JavaFX controllers.
 
 <!-- PREREQUISITES -->
-## Prerequisites
+### Prerequisites
 
-Before you begin, ensure you have the following installed on your system:
+Before you begin, ensure you have the following installed on your system: (required only for development)
 
 - **An IDE** (IntelliJ IDEA recommended).
 - **JDK 21**.
@@ -87,7 +86,7 @@ Before you begin, ensure you have the following installed on your system:
 
 <br>
 
-## How To Run Locally
+### How To Run Locally
 
 1. Clone the repository
 2. Before running, make sure to install all the dependencies
@@ -98,7 +97,7 @@ Before you begin, ensure you have the following installed on your system:
 
 <br>
 
-## How To `COMPILE` Locally
+### How To `COMPILE` Locally
 
 1. Clone the repository
 2. Install all dependencies
