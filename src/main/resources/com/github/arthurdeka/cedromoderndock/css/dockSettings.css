@@ -1,178 +1,380 @@
-/**
- * Cedro Modern Dock - Dock Settings Stylesheet
- * * Color Scheme:
- * - Dark Background: #2b2b2b
- * - Lighter Dark Background/Controls: #3c3c3c
- * - Accent/Text Color: #007acc
- * - Hover Color: #555555
- * - Text on Accent: #ffffff
- */
-
-/* --- General Styles --- */
 .root {
-    -fx-background-color: #2b2b2b;
     -fx-font-family: "Segoe UI", Arial, sans-serif;
-}
-
-.label {
-    -fx-text-fill: #007acc; /* Main accent color for all labels */
-    -fx-font-size: 24px;
-}
-
-/* Style for the main title "Dock Settings" */
-#mainTitle { /* You would add fx:id="mainTitle" to your main Label in FXML */
-    -fx-font-size: 32px;
-    -fx-text-fill: #007acc;
-    -fx-font-weight: bold;
-}
-
-
-/* --- TabPane and Tabs Styles --- */
-.tab-pane {
-    -fx-background-color: #2b2b2b;
-}
-
-.tab-pane .tab-header-area .tab-header-background {
-    -fx-background-color: #2b2b2b;
-    -fx-padding: 0 0 5 0;
-}
-
-.tab-pane .tab {
-    -fx-background-color: #3c3c3c;
-    -fx-background-radius: 5 5 0 0;
-    -fx-padding: 8 15 8 15;
+    -fx-background-color: #111315;
+    -fx-base: #111315;
+    -fx-accent: #007acc;
     -fx-focus-color: transparent;
     -fx-faint-focus-color: transparent;
 }
 
-.tab-pane .tab .tab-label {
-    -fx-text-fill: #cccccc; /* Lighter text for non-selected tabs */
-    -fx-font-size: 10px;
+.window-root {
+    -fx-background-color: linear-gradient(to bottom, #15181c 0%, #111315 100%);
+}
+
+.settings-window {
+    -fx-background-insets: 0;
+}
+
+.modal-root {
+    -fx-background-color: #111315;
+}
+
+.label {
+    -fx-text-fill: #e6edf3;
+    -fx-font-size: 13px;
+}
+
+.page-header {
+    -fx-padding: 0 0 4 0;
+}
+
+#mainTitle,
+.main-title {
+    -fx-text-fill: #f5f7fa;
+    -fx-font-size: 30px;
     -fx-font-weight: bold;
 }
 
-.tab-pane .tab:selected {
-    -fx-background-color: #3c3c3c;
-    -fx-border-color: #007acc #3c3c3c #3c3c3c #3c3c3c;
-    -fx-border-width: 3 0 0 0;
+.modal-title {
+    -fx-font-size: 26px;
 }
 
-.tab-pane .tab:selected .tab-label {
-    -fx-text-fill: #007acc; /* Accent color for the selected tab's text */
+.main-subtitle {
+    -fx-text-fill: #8f9aa6;
+    -fx-font-size: 13px;
+}
+
+.content-shell {
+    -fx-background-color: transparent;
+}
+
+.tab-scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+    -fx-fit-to-width: true;
+}
+
+.tab-scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.tab-scroll-pane > .corner {
+    -fx-background-color: transparent;
+}
+
+.section-card {
+    -fx-background-color: #1a1d21;
+    -fx-border-color: #2d333b;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-padding: 18px;
+}
+
+.action-panel {
+    -fx-background-color: #171a1e;
+}
+
+.hero-card,
+.logo-card {
+    -fx-background-color: #171a1e;
+    -fx-border-color: #2d333b;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-padding: 18px;
+}
+
+.hero-image-wrap {
+    -fx-background-color: #111315;
+    -fx-border-color: #28313a;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-padding: 18px;
+}
+
+.section-title {
+    -fx-text-fill: #007acc;
+    -fx-font-size: 17px;
+    -fx-font-weight: bold;
+}
+
+.section-helper {
+    -fx-text-fill: #97a3b0;
+    -fx-font-size: 12px;
+}
+
+.field-label {
+    -fx-text-fill: #dce3ea;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.meta-card {
+    -fx-min-width: 440px;
+}
+
+.meta-value {
+    -fx-text-fill: #d7dee6;
+    -fx-font-size: 13px;
+}
+
+.general-link {
+    -fx-text-fill: #8fbfe8;
+}
+
+.footer-note {
+    -fx-text-fill: #b9c3ce;
+    -fx-font-weight: bold;
+}
+
+.ack-item {
+    -fx-background-color: #13161a;
+    -fx-border-color: #262d35;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-padding: 10px 12px;
+    -fx-text-fill: #dde6ef;
+    -fx-font-size: 13px;
+}
+
+.tab-pane {
+    -fx-background-color: transparent;
+    -fx-tab-min-height: 36px;
+    -fx-tab-max-height: 36px;
+}
+
+.tab-pane .tab-header-area {
+    -fx-padding: 0 0 8 0;
+}
+
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-background-color: transparent;
+}
+
+.tab-pane .headers-region {
+    -fx-background-color: transparent;
+}
+
+.tab-pane .tab {
+    -fx-background-color: #1a1d21;
+    -fx-border-color: #2d333b;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px 4px 0 0;
+    -fx-background-radius: 4px 4px 0 0;
+    -fx-padding: 8 16 8 16;
 }
 
 .tab-pane .tab:hover {
-    -fx-background-color: #555555;
+    -fx-background-color: #20242a;
+}
+
+.tab-pane .tab:selected {
+    -fx-background-color: #20242a;
+    -fx-border-color: #007acc #2d333b #20242a #2d333b;
+    -fx-border-width: 2px 1px 1px 1px;
+}
+
+.tab-pane .tab .tab-label {
+    -fx-text-fill: #a9b4bf;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.tab-pane .tab:selected .tab-label {
+    -fx-text-fill: #f5f7fa;
 }
 
 .tab-pane .tab-content-area {
-    -fx-background-color: #3c3c3c;
-    -fx-background-radius: 0 5 5 5;
-    -fx-padding: 20px;
+    -fx-background-color: #14181c;
+    -fx-border-color: #2d333b;
+    -fx-border-width: 1px;
+    -fx-background-radius: 0 4px 4px 4px;
+    -fx-border-radius: 0 4px 4px 4px;
 }
 
-
-/* --- Button Styles --- */
 .button {
     -fx-background-color: #007acc;
-    -fx-text-fill: #ffffff;
-    -fx-font-weight: bold;
+    -fx-text-fill: white;
     -fx-font-size: 13px;
-    -fx-background-radius: 5;
-    -fx-padding: 8 15 8 15;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 5, 0, 0, 2);
+    -fx-font-weight: bold;
+    -fx-padding: 11px 16px;
+    -fx-background-radius: 4px;
+    -fx-border-radius: 4px;
+    -fx-border-width: 1px;
+    -fx-border-color: #007acc;
 }
 
 .button:hover {
-    -fx-background-color: #0095ff;
+    -fx-background-color: #1387d7;
+    -fx-border-color: #1387d7;
     -fx-cursor: hand;
 }
 
 .button:pressed {
-    -fx-background-color: #005c9e;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 1);
+    -fx-background-color: #0060a2;
+    -fx-border-color: #0060a2;
 }
 
 .button:disabled {
-    -fx-opacity: 0.6;
-    -fx-effect: none;
+    -fx-opacity: 0.48;
 }
 
-
-/* --- General tab --- */
-.general-label {
-    -fx-font-size: 12px;
-    -fx-text-fill: white;
-    -fx-font-weight: bold;
+.secondary-button {
+    -fx-background-color: #1a1d21;
+    -fx-border-color: #2f3943;
+    -fx-text-fill: #e6edf3;
 }
 
+.secondary-button:hover {
+    -fx-background-color: #22272e;
+    -fx-border-color: #3b4753;
+}
 
-/* --- ListView Styles --- */
+.secondary-button:pressed {
+    -fx-background-color: #171b1f;
+    -fx-border-color: #2f3943;
+}
+
 .list-view {
-    -fx-background-color: #2b2b2b;
-    -fx-border-color: #555555;
-    -fx-border-width: 1;
-    -fx-background-radius: 5;
-    -fx-border-radius: 5;
+    -fx-background-color: #111315;
+    -fx-control-inner-background: #111315;
+    -fx-border-color: #2d333b;
+    -fx-border-width: 1px;
+    -fx-background-radius: 4px;
+    -fx-border-radius: 4px;
+    -fx-padding: 4px;
 }
 
 .list-cell {
     -fx-background-color: transparent;
-    -fx-text-fill: #007acc;
-    -fx-padding: 8px;
-    -fx-font-size: 14px;
+    -fx-text-fill: #dce3ea;
+    -fx-font-size: 13px;
+    -fx-padding: 10px 12px;
 }
 
 .list-cell:filled:hover {
-    -fx-background-color: #555555;
-    -fx-text-fill: #ffffff;
+    -fx-background-color: #1d2329;
+    -fx-text-fill: #f5f7fa;
 }
 
-.list-cell:filled:selected {
+.list-cell:filled:selected,
+.list-cell:filled:selected:hover {
     -fx-background-color: #007acc;
     -fx-text-fill: #ffffff;
 }
 
-/* --- Slider Styles --- */
+.scroll-bar:vertical,
+.scroll-bar:horizontal {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: #2f3943;
+    -fx-background-radius: 4px;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: #3d4956;
+}
+
 .slider .track {
-    -fx-background-color: #555555;
-    -fx-background-radius: 5;
-    -fx-pref-height: 8px;
+    -fx-background-color: #2a3036;
+    -fx-background-radius: 2px;
+    -fx-pref-height: 4px;
 }
 
 .slider .thumb {
     -fx-background-color: #007acc;
-    -fx-background-radius: 20;
+    -fx-background-radius: 100px;
     -fx-padding: 8px;
 }
 
+.slider .axis {
+    -fx-tick-label-fill: #8f9aa6;
+    -fx-tick-length: 4px;
+}
+
 .slider .axis .tick-mark {
-    -fx-stroke: #cccccc;
-    -fx-stroke-width: 1px;
+    -fx-stroke: #5f6a75;
 }
 
-.slider .axis .axis-label {
-    -fx-text-fill: #cccccc;
-}
-
-
-/* --- ColorPicker Styles --- */
-#dockColorPicker {
-    -fx-background-color: #007acc;
-    -fx-background-radius: 5;
-    -fx-padding: 5 10 5 10;
-}
-
-#dockColorPicker .color-picker-label {
-    -fx-text-fill: white;
+.radio-button {
+    -fx-text-fill: #dce3ea;
+    -fx-font-size: 13px;
     -fx-font-weight: bold;
 }
 
-#dockColorPicker .arrow {
-    -fx-background-color: white;
+.radio-button .radio {
+    -fx-background-color: #111315;
+    -fx-border-color: #55616e;
+    -fx-border-width: 1px;
+    -fx-border-radius: 100px;
+    -fx-background-radius: 100px;
+    -fx-padding: 4px;
 }
 
-/* Prevents the color picker from showing the opacity option */
+.radio-button:selected .radio {
+    -fx-border-color: #007acc;
+}
+
+.radio-button:selected .dot {
+    -fx-background-color: #007acc;
+    -fx-background-insets: 0;
+}
+
+.choice-box,
+.color-picker {
+    -fx-background-color: #111315;
+    -fx-border-color: #2d333b;
+    -fx-border-width: 1px;
+    -fx-background-radius: 4px;
+    -fx-border-radius: 4px;
+    -fx-mark-color: #007acc;
+    -fx-padding: 4px 8px;
+}
+
+.choice-box:hover,
+.color-picker:hover {
+    -fx-background-color: #161a1f;
+    -fx-border-color: #3a4652;
+}
+
+.choice-box > .label,
+.color-picker .label {
+    -fx-text-fill: #e6edf3;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.choice-box .context-menu {
+    -fx-background-color: #171b20;
+}
+
+.choice-box .menu-item:focused {
+    -fx-background-color: #007acc;
+}
+
+.choice-box .menu-item > .label {
+    -fx-text-fill: #e6edf3;
+    -fx-font-size: 13px;
+}
+
+.choice-box .menu-item:focused > .label {
+    -fx-text-fill: white;
+}
+
+#dockColorPicker .arrow {
+    -fx-background-color: #007acc;
+}
+
+#dockColorPicker .color-picker-label {
+    -fx-text-fill: #e6edf3;
+}
+
 #dockColorPicker .color-picker-grid .opacity-slider,
 #dockColorPicker .color-picker-grid .opacity-label {
     visibility: hidden;

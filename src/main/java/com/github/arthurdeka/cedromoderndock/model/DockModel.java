@@ -1,7 +1,6 @@
 package com.github.arthurdeka.cedromoderndock.model;
 
-import com.github.arthurdeka.cedromoderndock.util.Logger;
-import com.github.arthurdeka.cedromoderndock.util.SaveAndLoadDockSettings;
+import com.github.arthurdeka.cedromoderndock.application.SupportedLanguage;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,6 +25,30 @@ public class DockModel {
     private double dockPositionX;
     @Getter
     private double dockPositionY;
+    @Getter
+    @Setter
+    private DockPositioningMode positioningMode = DockPositioningMode.STATIC;
+    @Getter
+    @Setter
+    private DockVerticalAnchor verticalAnchor = DockVerticalAnchor.TOP;
+    @Getter
+    @Setter
+    private DockHorizontalAnchor horizontalAnchor = DockHorizontalAnchor.MIDDLE;
+    @Getter
+    @Setter
+    private int topSpacing = 20;
+    @Getter
+    @Setter
+    private int leftSpacing = 20;
+    @Getter
+    @Setter
+    private int rightSpacing = 20;
+    @Getter
+    @Setter
+    private int bottomSpacing = 20;
+    @Getter
+    @Setter
+    private SupportedLanguage language = SupportedLanguage.EN_US;
 
     public void addItem(DockItem item) {
         items.add(item);
@@ -72,12 +95,5 @@ public class DockModel {
     public void setDockPosition(Double PositionX, Double PositionY) {
         this.dockPositionX = PositionX;
         this.dockPositionY = PositionY;
-        saveChanges();
-    }
-
-    public void saveChanges() {
-        SaveAndLoadDockSettings.save(this);
-        Logger.info("[DockModel] changes saved");
-
     }
 }
